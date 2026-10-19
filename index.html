@@ -1,0 +1,1139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Digital Media Task Scheduler</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="author" content="Suhail">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a7aff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Task Scheduler">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22fg%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%2346a6ff%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230757d1%22/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%22h%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%22.22%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23fff%22%20stop-opacity%3D%220%22/%3E%3C/linearGradient%3E%3CclipPath%20id%3D%22c%22%3E%3Crect%20x%3D%2221%22%20y%3D%2227%22%20width%3D%2258%22%20height%3D%2252%22%20rx%3D%2210%22/%3E%3C/clipPath%3E%3C/defs%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2296%22%20height%3D%2296%22%20rx%3D%2222%22%20fill%3D%22url%28%23fg%29%22/%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%2296%22%20height%3D%2248%22%20rx%3D%2222%22%20fill%3D%22url%28%23h%29%22/%3E%3Cg%20transform%3D%22translate%2850%2050%29%20scale%281.0%29%20translate%28-50%20-50%29%22%3E%3Crect%20x%3D%2221%22%20y%3D%2229.5%22%20width%3D%2258%22%20height%3D%2252%22%20rx%3D%2210%22%20fill%3D%22%2303306f%22%20opacity%3D%22.25%22/%3E%3Crect%20x%3D%2221%22%20y%3D%2227%22%20width%3D%2258%22%20height%3D%2252%22%20rx%3D%2210%22%20fill%3D%22%23fff%22/%3E%3Crect%20x%3D%2221%22%20y%3D%2227%22%20width%3D%2258%22%20height%3D%2215%22%20fill%3D%22%23ff5a4f%22%20clip-path%3D%22url%28%23c%29%22/%3E%3Crect%20x%3D%2234%22%20y%3D%2220%22%20width%3D%226%22%20height%3D%2214%22%20rx%3D%223%22%20fill%3D%22%23fff%22/%3E%3Crect%20x%3D%2260%22%20y%3D%2220%22%20width%3D%226%22%20height%3D%2214%22%20rx%3D%223%22%20fill%3D%22%23fff%22/%3E%3Cpath%20d%3D%22M45%2050.5%20L45%2069.5%20L61%2060%20Z%22%20fill%3D%22%230a6cf0%22%20stroke%3D%22%230a6cf0%22%20stroke-width%3D%225%22%20stroke-linejoin%3D%22round%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="alternate icon" type="image/png" href="favicon.png">
+<style>
+/* Layout: macOS-style app window (title bar + vibrancy sidebar + content) floating on a soft desktop wallpaper */
+:root{
+  --desk-a:#cfe3f3; --desk-b:#f3e3cf; --desk-c:#b9d6e8;
+  --win:#ffffff; --side:rgba(236,239,243,.82); --bar:rgba(246,247,249,.9);
+  --card:#ffffff; --sunk:#f3f4f7; --hover:rgba(0,0,0,.05); --sel:rgba(10,122,255,.12);
+  --line:rgba(0,0,0,.09); --line2:rgba(0,0,0,.16);
+  --fg:#1d1d1f; --fg2:#5b5d63; --fg3:#8a8c93;
+  --accent:#0a7aff; --accent-fg:#ffffff;
+  --ok:#28a745; --warn:#d98a00; --bad:#e5383b; --info:#0a7aff;
+  --ok-bg:rgba(40,167,69,.13); --warn-bg:rgba(217,138,0,.14); --bad-bg:rgba(229,56,59,.12); --info-bg:rgba(10,122,255,.12);
+  --shadow:0 30px 80px rgba(20,30,50,.28),0 0 0 .5px rgba(0,0,0,.18);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-d:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --desk-a:#1b2a3a; --desk-b:#2b2230; --desk-c:#13202c;
+  --win:#1e1e20; --side:rgba(40,40,44,.84); --bar:rgba(44,44,48,.92);
+  --card:#2a2a2d; --sunk:#252528; --hover:rgba(255,255,255,.06); --sel:rgba(10,132,255,.24);
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.18);
+  --fg:#f2f2f4; --fg2:#b4b5ba; --fg3:#85868c;
+  --accent:#0a84ff; --accent-fg:#ffffff;
+  --ok:#32d74b; --warn:#ffb340; --bad:#ff5f57; --info:#64a8ff;
+  --ok-bg:rgba(50,215,75,.16); --warn-bg:rgba(255,179,64,.16); --bad-bg:rgba(255,95,87,.16); --info-bg:rgba(10,132,255,.22);
+  --shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 .5px rgba(255,255,255,.14);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --desk-a:#1b2a3a; --desk-b:#2b2230; --desk-c:#13202c;
+  --win:#1e1e20; --side:rgba(40,40,44,.84); --bar:rgba(44,44,48,.92);
+  --card:#2a2a2d; --sunk:#252528; --hover:rgba(255,255,255,.06); --sel:rgba(10,132,255,.24);
+  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.18);
+  --fg:#f2f2f4; --fg2:#b4b5ba; --fg3:#85868c;
+  --accent:#0a84ff; --accent-fg:#ffffff;
+  --ok:#32d74b; --warn:#ffb340; --bad:#ff5f57; --info:#64a8ff;
+  --ok-bg:rgba(50,215,75,.16); --warn-bg:rgba(255,179,64,.16); --bad-bg:rgba(255,95,87,.16); --info-bg:rgba(10,132,255,.22);
+  --shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 .5px rgba(255,255,255,.14);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0}
+img{max-width:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%}
+body{background:var(--desk-a);background-image:radial-gradient(1200px 700px at 10% 0%,var(--desk-b),transparent 60%),radial-gradient(900px 600px at 100% 100%,var(--desk-c),transparent 60%);
+  color:var(--fg);font:13.5px/1.45 var(--font);-webkit-font-smoothing:antialiased;display:flex;
+  padding-block:22px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow:hidden}
+@media (min-width:900px){body{padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px;border-radius:6px}
+
+.win{flex:1;min-width:0;max-width:1380px;margin:0 auto;background:var(--win);border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes pop{from{transform:scale(.97);opacity:.4}}
+.titlebar{height:52px;flex:none;display:flex;align-items:center;gap:14px;padding:0 14px;background:var(--bar);border-bottom:1px solid var(--line);backdrop-filter:blur(20px)}
+.lights{display:flex;gap:8px;flex:none}
+.lights i{width:12px;height:12px;border-radius:50%;background:#ff5f57;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.2)}
+.lights i:nth-child(2){background:#febc2e}.lights i:nth-child(3){background:#28c840}
+.logo{display:inline-block;flex:none;line-height:0}.logo svg{width:100%;height:100%;display:block;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.18))}
+#tbLogo{display:flex;flex:none}
+.welcome{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:26px 22px 4px}
+.welcome h2{margin:10px 0 0;font:700 22px var(--font-d);letter-spacing:-.01em}
+.welcome p{margin:0;color:var(--fg2);max-width:40ch}
+.tb-title{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.tb-title small{font-weight:400;color:var(--fg3);margin-left:6px}
+.tb-tools{display:flex;gap:8px;align-items:center;flex:none}
+.mebtn{display:flex;align-items:center;gap:7px;border:0;background:transparent;border-radius:999px;padding:3px 10px 3px 3px;font-size:13px;color:var(--fg)}
+.mebtn:hover{background:var(--hover)}
+.mebtn .av{width:24px;height:24px;font-size:10px}
+.whol{display:flex;flex-direction:column;gap:6px}
+.whol h5{margin:8px 2px 2px;font-size:11.5px;color:var(--fg3);font-weight:600}
+.search{display:flex;align-items:center;gap:6px;background:var(--hover);border-radius:7px;padding:4px 8px;width:220px;color:var(--fg3)}
+.search input{border:0;background:transparent;outline:0;width:100%;color:var(--fg);font-size:13px}
+.search svg{flex:none}
+
+.body{flex:1;display:flex;min-height:0}
+.side{width:216px;flex:none;background:var(--side);border-right:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow:auto;backdrop-filter:blur(30px)}
+.side h6{margin:14px 10px 4px;font-size:11px;font-weight:600;color:var(--fg3);letter-spacing:.02em}
+.side h6:first-child{margin-top:2px}
+.nav{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:7px;border:0;background:transparent;text-align:left;font-size:13.5px;color:var(--fg)}
+.nav svg{color:var(--accent);flex:none}
+.nav:hover{background:var(--hover)}
+.nav.on{background:var(--sel)}
+.nav .ct{margin-left:auto;font-size:12px;color:var(--fg3);font-variant-numeric:tabular-nums}
+.side .grow{flex:1}
+.side .credit{font-size:11.5px;color:var(--fg3);padding:10px;line-height:1.5}
+.side .credit a{color:var(--accent);text-decoration:none}
+
+main{flex:1;min-width:0;overflow:auto;padding:26px 30px 40px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.head h1{font:700 26px/1.15 var(--font-d);margin:0;letter-spacing:-.015em;text-wrap:balance}
+.head p{margin:4px 0 0;color:var(--fg2)}
+.head .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:7px;padding:5px 12px;background:var(--card);box-shadow:0 0 0 .5px var(--line2),0 1px 1.5px rgba(0,0,0,.08);font-size:13px;white-space:nowrap}
+.btn:hover{filter:brightness(.97)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.btn.danger{color:var(--bad)}
+.btn.ghost{background:transparent;box-shadow:none;color:var(--accent)}
+.btn.ghost:hover{background:var(--hover)}
+.btn.sm{padding:3px 9px;font-size:12px}
+.ibtn{border:0;background:transparent;border-radius:6px;padding:5px;color:var(--fg2);display:inline-flex}
+.ibtn:hover{background:var(--hover);color:var(--fg)}
+.ibtn.bad:hover{color:var(--bad)}
+
+.seg{display:inline-flex;background:var(--hover);border-radius:8px;padding:2px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:6px;padding:3px 12px;font-size:12.5px;color:var(--fg2)}
+.seg button.on{background:var(--card);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.14),0 0 0 .5px var(--line)}
+select.sel{border:0;border-radius:7px;background:var(--card);box-shadow:0 0 0 .5px var(--line2),0 1px 1.5px rgba(0,0,0,.08);padding:4px 8px;font-size:13px}
+
+.banner{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--info-bg);border-radius:10px;padding:10px 14px;margin-bottom:18px;color:var(--fg)}
+.banner p{margin:0;flex:1;min-width:220px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--sunk);border-radius:12px;padding:14px 16px;border:0;text-align:left;display:flex;flex-direction:column;gap:2px}
+.stat:hover{background:var(--hover)}
+.stat b{font:700 28px/1.1 var(--font-d);font-variant-numeric:tabular-nums}
+.stat span{color:var(--fg2);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.stat span i{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px}
+@media (max-width:1100px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--card);border-radius:12px;box-shadow:0 0 0 .5px var(--line2);overflow:hidden;min-width:0}
+.panel>header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.panel>header h2{font-size:14px;margin:0;font-weight:600}
+.panel>header small{color:var(--fg3)}
+.empty{padding:28px 16px;text-align:center;color:var(--fg3)}
+
+.drop{margin:14px;border:2px dashed var(--line2);border-radius:12px;padding:22px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;transition:.15s}
+.drop.hot{border-color:var(--accent);background:var(--sel)}
+.drop .big{width:46px;height:46px;border-radius:12px;background:var(--info-bg);color:var(--accent);display:grid;place-items:center}
+.drop strong{font-size:14px}
+.drop p{margin:0;color:var(--fg2);max-width:42ch}
+.drop .row-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;margin-top:4px}
+
+/* task rows */
+.list{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row:hover{background:var(--hover)}
+.check{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line2);background:transparent;display:grid;place-items:center;padding:0;color:#fff}
+.check:hover{border-color:var(--ok)}
+.row.done .check{background:var(--ok);border-color:var(--ok)}
+.row.done .rt{text-decoration:line-through;color:var(--fg3)}
+.rt{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.rm{font-size:12px;color:var(--fg3);display:flex;gap:10px;flex-wrap:wrap;margin-top:1px}
+.rm .over{color:var(--bad);font-weight:500}
+.rm .soon{color:var(--warn)}
+.rm span{display:inline-flex;align-items:center;gap:4px}
+.pri{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.pri.high{color:var(--bad)}.pri.low{color:var(--fg3)}
+.acts{display:flex;gap:2px}
+select.pill{appearance:none;-webkit-appearance:none;border:0;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:500;cursor:pointer;text-align:center}
+.s-pending{background:var(--warn-bg);color:var(--warn)}
+.s-working{background:var(--info-bg);color:var(--info)}
+.s-done{background:var(--ok-bg);color:var(--ok)}
+.av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:10.5px;font-weight:600;flex:none;letter-spacing:.02em}
+.av.lg{width:36px;height:36px;font-size:13px}
+.av.none{background:var(--hover);color:var(--fg3)}
+
+/* board */
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.col{background:var(--sunk);border-radius:12px;padding:10px;min-height:200px;display:flex;flex-direction:column;gap:8px;transition:.12s}
+.col.hot{background:var(--sel)}
+.col h3{margin:2px 4px 4px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+.col h3 em{font-style:normal;color:var(--fg3);font-weight:400}
+.card{background:var(--card);border-radius:9px;padding:10px 12px;box-shadow:0 0 0 .5px var(--line2),0 1px 2px rgba(0,0,0,.06);cursor:grab;display:flex;flex-direction:column;gap:6px}
+.card:active{cursor:grabbing}
+.card .ct1{font-weight:500}
+.card .cm{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--fg3)}
+.dragging{opacity:.4}
+
+/* week schedule */
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.day{background:var(--sunk);border-radius:12px;padding:8px;min-height:260px;display:flex;flex-direction:column;gap:6px;transition:.12s}
+.day.hot{background:var(--sel)}
+.day.today{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.day h4{margin:2px 4px 4px;font-size:12px;font-weight:600;display:flex;justify-content:space-between;color:var(--fg2)}
+.day h4 b{font:600 18px var(--font-d);color:var(--fg)}
+.day.today h4 b{color:var(--accent)}
+.chip{background:var(--card);border-radius:7px;padding:6px 8px;font-size:12px;box-shadow:0 0 0 .5px var(--line2);cursor:grab;border-left:3px solid var(--warn);display:flex;flex-direction:column;gap:2px}
+.chip.working{border-left-color:var(--info)}.chip.done{border-left-color:var(--ok);opacity:.65}
+.chip.start{border-left-style:dashed}
+.chip span{color:var(--fg3);font-size:11px}
+@media (max-width:1000px){.week{grid-template-columns:minmax(0,1fr)}.day{min-height:auto}}
+
+/* team */
+.team{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;padding:14px}
+.member{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--sunk)}
+.member .mi{flex:1;min-width:0}
+.member .mi b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.member .mi small{color:var(--fg3);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.role-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--hover);color:var(--fg2)}
+.addform{display:flex;gap:8px;flex-wrap:wrap;padding:14px;border-bottom:1px solid var(--line);align-items:center}
+.addform input,.addform select{flex:1;min-width:140px}
+
+/* forms */
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f label{font-size:12px;font-weight:500;color:var(--fg2)}
+.inp,.f input:not([type=checkbox]),.f select,.f textarea,.addform input,.addform select{border:0;border-radius:7px;background:var(--card);box-shadow:0 0 0 .5px var(--line2),inset 0 1px 1px rgba(0,0,0,.04);padding:6px 9px;font-size:13px;outline:0;width:100%}
+.f input:focus,.f select:focus,.f textarea:focus,.addform input:focus,.inp:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent)}
+.f textarea{resize:vertical;min-height:84px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.fgrid{grid-template-columns:1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;border-radius:7px;background:var(--card);box-shadow:0 0 0 .5px var(--line2);padding:5px 6px;cursor:text}
+.chips input{border:0!important;box-shadow:none!important;flex:1;min-width:160px;padding:2px 4px!important;background:transparent!important}
+.chips .c{display:inline-flex;align-items:center;gap:4px;background:var(--info-bg);color:var(--info);border-radius:999px;padding:1px 4px 1px 9px;font-size:12px}
+.chips .c button{border:0;background:transparent;color:inherit;padding:0 3px;line-height:1}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.quick button{border:0;background:var(--hover);border-radius:999px;padding:2px 9px;font-size:11.5px;color:var(--fg2)}
+.quick button:hover{color:var(--accent)}
+.checkline{display:flex;align-items:center;gap:8px;font-size:13px}
+.hint{font-size:12px;color:var(--fg3);margin:0}
+
+/* modal (macOS sheet) */
+#modal{position:fixed;inset:0;z-index:50;display:flex;justify-content:center;align-items:flex-start;padding:60px 16px 16px}
+#modal .scrim{position:absolute;inset:0;background:rgba(0,0,0,.28)}
+.sheet{position:relative;background:var(--win);border-radius:12px;box-shadow:var(--shadow);width:min(620px,100%);max-height:calc(100% - 20px);display:flex;flex-direction:column;animation:drop .25s cubic-bezier(.2,.8,.3,1)}
+.sheet.sm{width:min(440px,100%)}
+.sheet>form{display:contents}
+@keyframes drop{from{transform:translateY(-24px);opacity:0}}
+.sheet>header,.sheet>form>header{padding:16px 20px 6px}
+.sheet>header h2,.sheet>form>header h2{margin:0;font:600 17px var(--font-d)}
+.sheet>header p,.sheet>form>header p{margin:4px 0 0;color:var(--fg2);font-size:13px}
+.sheet .sb{padding:12px 20px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.sheet>footer,.sheet>form>footer{padding:12px 20px 16px;display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line)}
+.sheet>footer .left,.sheet>form>footer .left{margin-right:auto}
+.mailbox{background:var(--sunk);border-radius:8px;padding:10px 12px;font-size:12.5px;white-space:pre-wrap;word-break:break-word;user-select:text;max-height:220px;overflow:auto;font-family:var(--mono)}
+
+/* toasts (notification banners top-right) */
+#toasts{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:60;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100% - 28px))}
+.toast{background:var(--bar);backdrop-filter:blur(30px);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.22),0 0 0 .5px var(--line2);padding:11px 13px;display:flex;gap:10px;animation:slide .35s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes slide{from{transform:translateX(110%)}}
+.toast .ti{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}
+.toast .tb{flex:1;min-width:0}
+.toast .tb small{display:block;font-size:11px;color:var(--fg3)}
+.toast .tb b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.toast .tb p{margin:1px 0 0;font-size:12.5px;color:var(--fg2)}
+.toast .ta{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+
+#dropOverlay{position:fixed;inset:0;z-index:70;background:color-mix(in srgb,var(--accent) 18%,transparent);backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px}
+#dropOverlay div{background:var(--win);border-radius:16px;padding:28px 34px;box-shadow:var(--shadow);text-align:center;border:2px dashed var(--accent);pointer-events:none;max-width:420px}
+#dropOverlay h3{margin:8px 0 4px;font:600 18px var(--font-d)}
+#dropOverlay p{margin:0;color:var(--fg2)}
+
+/* reports */
+.rgrid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:22px;margin-bottom:22px}
+@media (max-width:1000px){.rgrid{grid-template-columns:minmax(0,1fr)}}
+.chartwrap{padding:12px 14px;overflow-x:auto}
+.chartwrap svg{display:block;width:100%;min-width:420px;height:auto}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th{text-align:left;font-weight:500;color:var(--fg3);font-size:12px;padding:8px 16px;border-bottom:1px solid var(--line)}
+table.t td{padding:8px 16px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+table.t tr:last-child td{border-bottom:0}
+table.t td.n{text-align:right}
+.tscroll{overflow-x:auto}
+.bar{height:6px;border-radius:3px;background:var(--hover);overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:3px}
+
+/* settings & about */
+.setrow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.setrow:last-child{border-bottom:0}
+.setrow b{display:block;font-weight:500}
+.setrow small{color:var(--fg3)}
+.tog{position:relative;width:38px;height:22px;flex:none}
+.tog input{opacity:0;width:100%;height:100%;margin:0;cursor:pointer;position:absolute;z-index:1}
+.tog span{position:absolute;inset:0;border-radius:999px;background:var(--line2);transition:.2s}
+.tog span::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+.tog input:checked+span{background:var(--ok)}
+.tog input:checked+span::after{transform:translateX(16px)}
+.about{display:flex;gap:18px;align-items:center;padding:20px;flex-wrap:wrap}
+.appicon{width:76px;height:76px;border-radius:18px;background:linear-gradient(160deg,#3aa0ff,#0a5fd8);display:grid;place-items:center;color:#fff;box-shadow:0 6px 16px rgba(10,95,216,.35);flex:none}
+.about h3{margin:0;font:700 19px var(--font-d)}
+.about p{margin:3px 0 0;color:var(--fg2)}
+.about .links{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+a.btn{text-decoration:none;color:inherit}
+.stack{display:flex;flex-direction:column;gap:22px}
+
+.nav .short{display:none}
+/* own-window mode (Windows launcher or installed app): fill the window, no fake frame */
+.appwin body{padding:0;background:var(--win);background-image:none}
+.appwin .win{border-radius:0;box-shadow:none;max-width:none;animation:none}
+.appwin .lights{display:none}
+
+/* reminder popup (alarm) */
+.alarm{width:min(480px,100%)}
+.alarm .ahead{display:flex;gap:14px;align-items:center;padding:20px 20px 8px}
+.alarm .bell{width:52px;height:52px;border-radius:14px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none;animation:ring 1.2s ease-in-out 2}
+@keyframes ring{0%,100%{transform:rotate(0)}15%{transform:rotate(14deg)}30%{transform:rotate(-12deg)}45%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}}
+.alarm .ahead h2{margin:0;font:700 19px var(--font-d)}
+.alarm .ahead p{margin:2px 0 0;color:var(--fg2)}
+.aitem{background:var(--sunk);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.aitem b{font-size:15px;font-weight:600}
+.aitem .am{font-size:12.5px;color:var(--fg2);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.aitem .am .over{color:var(--bad);font-weight:600}
+.aitem .ab{display:flex;gap:6px;flex-wrap:wrap}
+.aitem .ab select{padding:3px 6px}
+.calopts{display:flex;flex-direction:column;gap:8px}
+.calopt{display:flex;gap:12px;align-items:center;padding:11px 12px;border-radius:10px;background:var(--sunk);border:0;text-align:left;width:100%;color:inherit;text-decoration:none}
+.calopt:hover{background:var(--hover)}
+.calopt.first{order:-1;box-shadow:inset 0 0 0 1.5px var(--accent)}
+.calopt .ci{width:36px;height:36px;border-radius:9px;color:#fff;display:grid;place-items:center;flex:none}
+.calopt b{display:block;font-weight:600}
+.calopt small{display:block;color:var(--fg3);font-size:12px;line-height:1.35}
+.install{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:14px}
+.install>div{background:var(--sunk);border-radius:10px;padding:12px 14px}
+.install h4{margin:0 0 6px;font-size:13.5px}
+.install ol{margin:0;padding-left:18px;color:var(--fg2);font-size:12.5px;display:flex;flex-direction:column;gap:3px}
+#qr{background:#fff;padding:8px;border-radius:8px;display:inline-block;line-height:0}
+
+/* phone: full-screen app with bottom tab bar */
+@media (max-width:760px){
+  body{padding:0;background:var(--bar);background-image:none}
+  .win{border-radius:0;box-shadow:none;animation:none;max-width:none}
+  .lights,.search,.tb-title small,.mebtn .mn{display:none}
+  .mebtn{padding:3px}
+  .titlebar{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));height:54px}
+  .tb-title{font:700 17px var(--font-d)}
+  .body{flex-direction:column}
+  .side{order:2;width:auto;flex-direction:row;overflow:visible;border-right:0;border-top:1px solid var(--line);padding:4px max(6px,env(safe-area-inset-right,0px)) 4px max(6px,env(safe-area-inset-left,0px));gap:0;background:var(--bar)}
+  .side h6,.side .grow,.side .credit{display:none}
+  .nav{flex:1 1 0;min-width:0;flex-direction:column;gap:2px;padding:6px 2px;font-size:10.5px;color:var(--fg3);border-radius:8px}
+  .nav svg{color:inherit;width:22px;height:22px}
+  .nav.on{background:transparent;color:var(--accent)}
+  .nav .ct,.nav .long{display:none}
+  .nav .short{display:block}
+  main{padding:18px max(16px,env(safe-area-inset-right,0px)) 30px max(16px,env(safe-area-inset-left,0px))}
+  .head h1{font-size:28px}
+  .row{grid-template-columns:auto minmax(0,1fr) auto;row-gap:6px}
+  .row .av{display:none}
+  .rt{white-space:normal}
+  select.pill{font-size:13px!important}
+  .row .acts{grid-column:2/-1;justify-content:flex-start}
+  .board{grid-template-columns:minmax(0,1fr)}
+  input,select,textarea{font-size:16px!important}
+  #modal{align-items:flex-end;padding:0}
+  #modal .sheet{width:100%;border-radius:16px 16px 0 0;max-height:92%;padding-bottom:env(safe-area-inset-bottom,0px);animation:up .28s cubic-bezier(.2,.8,.3,1)}
+  @keyframes up{from{transform:translateY(40px);opacity:0}}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="win" id="win">
+  <header class="titlebar">
+    <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+    <span id="tbLogo"></span><div class="tb-title">Digital Media Task Scheduler <small id="clock"></small></div>
+    <div class="tb-tools">
+      <label class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search tasks" aria-label="Search tasks"></label>
+      <button class="mebtn" id="meBtn" data-act="who" title="Who uses this device"></button>
+      <button class="btn primary" data-act="new"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>New Task</button>
+    </div>
+  </header>
+  <div class="body">
+    <nav class="side" id="side" aria-label="Sections"></nav>
+    <main id="main"></main>
+  </div>
+</div>
+<div id="toasts" aria-live="polite"></div>
+<div id="modal" hidden></div>
+<div id="dropOverlay" hidden><div>
+  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--accent)"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+  <h3>Drop email to create a task</h3><p id="dropTo">Assigned to the selected person</p>
+</div></div>
+<input type="file" id="importFile" accept=".json,application/json" hidden>
+<input type="file" id="emailFile" accept=".eml,.msg,.txt" hidden>
+
+<script>
+(function(){
+"use strict";
+const KEY='dmts.v1';
+const ROLES=['Admin','Manager','Team Leader','Staff'];
+const ROLE_PL={'Admin':'Admins','Manager':'Managers','Team Leader':'Team Leaders','Staff':'Staff'};
+const STATUS={pending:'Pending',working:'Working on it',done:'Done'};
+const PRI={high:'High',normal:'Normal',low:'Low'};
+const EMBED=(()=>{try{return window.self!==window.top}catch(e){return true}})();
+try{if(new URLSearchParams(location.search).has('app')||matchMedia('(display-mode: standalone)').matches)document.documentElement.classList.add('appwin')}catch(e){}
+const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const STANDALONE=(()=>{try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}catch(e){return false}})();
+const HOSTED=!EMBED&&location.protocol==='https:';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const pad=n=>String(n).padStart(2,'0');
+const toInput=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const dkey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const D=s=>s?new Date(s):null;
+const DAY=864e5;
+function at(off,h,m=0){const d=new Date();d.setDate(d.getDate()+off);d.setHours(h,m,0,0);return toInput(d)}
+function ago(off,h=10){const d=new Date();d.setDate(d.getDate()-off);d.setHours(h,0,0,0);return d.toISOString()}
+const sod=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x};
+const sow=d=>{const x=sod(d);x.setDate(x.getDate()-((x.getDay()+6)%7));return x};
+const fmtDay=d=>d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+const fmtShort=d=>d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+const fmtTime=d=>d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+function rel(d){if(!d)return'';const diff=Math.round((sod(d)-sod(new Date()))/DAY);
+  const day=diff===0?'Today':diff===1?'Tomorrow':diff===-1?'Yesterday':fmtDay(d);return day+', '+fmtTime(d)}
+const validEmail=e=>/^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/.test(e);
+
+const LOGO_SVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46a6ff"/><stop offset="1" stop-color="#0757d1"/></linearGradient><linearGradient id="h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><clipPath id="c"><rect x="21" y="27" width="58" height="52" rx="10"/></clipPath></defs><rect x="2" y="2" width="96" height="96" rx="22" fill="url(#g)"/><rect x="2" y="2" width="96" height="48" rx="22" fill="url(#h)"/><g transform="translate(50 50) scale(1.0) translate(-50 -50)"><rect x="21" y="29.5" width="58" height="52" rx="10" fill="#03306f" opacity=".25"/><rect x="21" y="27" width="58" height="52" rx="10" fill="#fff"/><rect x="21" y="27" width="58" height="15" fill="#ff5a4f" clip-path="url(#c)"/><rect x="34" y="20" width="6" height="14" rx="3" fill="#fff"/><rect x="60" y="20" width="6" height="14" rx="3" fill="#fff"/><path d="M45 50.5 L45 69.5 L61 60 Z" fill="#0a6cf0" stroke="#0a6cf0" stroke-width="5" stroke-linejoin="round"/></g></svg>';
+let logoN=0;const logo=(sz,cls='')=>{const n='l'+(++logoN);return `<span class="logo ${cls}" style="width:${sz}px;height:${sz}px" aria-hidden="true">`+LOGO_SVG.replace(/id="(g|h|c)"/g,(m,a)=>`id="${a}${n}"`).replace(/url\(#(g|h|c)\)/g,(m,a)=>`url(#${a}${n})`)+'</span>'};
+const I={
+ home:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+ list:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4" cy="6" r="1.3" fill="currentColor"/><circle cx="4" cy="12" r="1.3" fill="currentColor"/><circle cx="4" cy="18" r="1.3" fill="currentColor"/></svg>',
+ cal:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+ team:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14.5c2.4 0 4 1.5 4.6 4"/></svg>',
+ chart:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+ gear:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 7 19.4a1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H1a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 2.6 7a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.9-1.2V1a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H23a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" transform="scale(.83) translate(2.4 2.4)"/></svg>',
+ mail:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>',
+ edit:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/></svg>',
+ trash:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+ archive:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/></svg>',
+ check:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4"><path d="m5 12 5 5 9-10"/></svg>',
+ clock:'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+ bell:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/></svg>',
+ inbox:'<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5.5 5h13L21 13v6H3v-6Z"/></svg>',
+ left:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m15 5-7 7 7 7"/></svg>',
+ right:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m9 5 7 7-7 7"/></svg>',
+ cap:'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="m8.5 15 2.3 2.3 4.7-4.6" stroke-width="2.2"/></svg>',
+ link:'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.5h4V21H3V9.5Zm6.5 0h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.1c0-1.22-.02-2.78-1.7-2.78-1.7 0-1.96 1.33-1.96 2.7V21h-4V9.5Z"/></svg>'
+};
+
+/* ---------- data ---------- */
+function seed(){return{v:1,sample:false,members:[],tasks:[],archive:[],settings:{sound:true,system:false,popup:true,alarm:true,repeat:true},lastPopup:''}}
+function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(!s||!Array.isArray(s.tasks)||s.sample)s=seed();
+  s.archive=s.archive||[];s.settings=Object.assign({sound:true,system:false,popup:true,alarm:true,repeat:true},s.settings||{});return s}
+let S=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+save();
+const ui={view:'overview',filter:'all',person:'all',mode:'list',week:0,rweek:0,q:'',dropTo:''};
+try{const u=JSON.parse(localStorage.getItem(KEY+'.ui'));if(u)Object.assign(ui,u,{q:'',week:0,rweek:0})}catch(e){}
+function saveUi(){try{localStorage.setItem(KEY+'.ui',JSON.stringify({view:ui.view,filter:ui.filter,person:ui.person,mode:ui.mode,dropTo:ui.dropTo}))}catch(e){}}
+
+const member=id=>S.members.find(m=>m.id===id);
+/* this device's owner: stored per device, never in backups */
+let ME='',SCOPE='auto';try{ME=localStorage.getItem(KEY+'.me')||'';SCOPE=localStorage.getItem(KEY+'.scope')||'auto'}catch(e){}
+function setMe(id){ME=id||'';try{localStorage.setItem(KEY+'.me',ME);localStorage.setItem(KEY+'.askedMe','1')}catch(e){}}
+function setScope(v){SCOPE=v;try{localStorage.setItem(KEY+'.scope',v)}catch(e){}}
+const meM=()=>member(ME);
+const scope=()=>SCOPE!=='auto'?SCOPE:(!meM()||['Admin','Manager'].includes(meM().role))?'all':'mine';
+const inScope=t=>scope()==='all'||t.assignee===ME||(!!meM()?.email&&(t.emails||[]).includes(meM().email));
+const canManage=()=>!meM()||['Admin','Manager'].includes(meM().role);
+const firstName=m=>String(m?.name||'').split(' ')[0];
+const task=id=>S.tasks.find(t=>t.id===id);
+function hue(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))%360;return h}
+const initials=n=>String(n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+function avatar(m,cls=''){if(!m)return`<span class="av none ${cls}" title="Unassigned">–</span>`;
+  return`<span class="av ${cls}" style="background:hsl(${hue(m.name)} 55% 48%)" title="${esc(m.name)} · ${esc(m.role)}">${esc(initials(m.name))}</span>`}
+function memberOptions(sel,withNone=true){
+  let h=withNone?`<option value="">Unassigned</option>`:'';
+  for(const r of ROLES){const ms=S.members.filter(m=>m.role===r);if(!ms.length)continue;
+    h+=`<optgroup label="${ROLE_PL[r]}">`+ms.map(m=>`<option value="${m.id}" ${m.id===sel?'selected':''}>${esc(m.name)}</option>`).join('')+'</optgroup>'}
+  return h}
+const isOver=t=>t.status!=='done'&&t.due&&D(t.due)<new Date();
+const isToday=t=>t.due&&dkey(D(t.due))===dkey(new Date());
+
+/* ---------- sidebar ---------- */
+const VIEWS=[['overview','Overview',I.home,'Home'],['tasks','All Tasks',I.list,'Tasks'],['schedule','Schedule',I.cal,'Schedule'],['team','Team',I.team,'Team'],['reports','Weekly Report',I.chart,'Report'],['settings','Settings & About',I.gear,'Settings']];
+function renderLogo(){const t=$('#tbLogo');if(t)t.innerHTML=logo(22)}
+function renderMe(){const b=$('#meBtn');if(!b)return;const m=meM();b.innerHTML=m?`${avatar(m)}<span class="mn">${esc(firstName(m))}</span>`:`<span class="av none">?</span><span class="mn">Who's this?</span>`}
+function renderSide(){renderMe();
+  const open=S.tasks.filter(t=>t.status!=='done').length;
+  const counts={tasks:open,team:S.members.length};
+  $('#side').innerHTML=`<h6>Workspace</h6>`+VIEWS.slice(0,3).map(navBtn(counts)).join('')+`<h6>Organization</h6>`+VIEWS.slice(3).map(navBtn(counts)).join('')+
+   `<div class="grow"></div><div class="credit">Developed by <b>Suhail</b><br><a href="https://www.linkedin.com/in/sikunju" target="_blank" rel="noopener">LinkedIn profile</a></div>`;
+}
+const navBtn=c=>([k,l,i,sh])=>`<button class="nav ${ui.view===k?'on':''}" data-act="nav" data-view="${k}">${i}<span class="long">${l}</span><span class="short">${sh}</span>${c[k]!=null?`<span class="ct">${c[k]}</span>`:''}</button>`;
+
+/* ---------- task row/card ---------- */
+function dueLabel(t){if(!t.due)return'';const d=D(t.due);
+  const c=isOver(t)?'over':(t.status!=='done'&&d-new Date()<DAY)?'soon':'';
+  return`<span class="${c}">${I.clock}${isOver(t)?'Overdue · ':'Due '}${esc(rel(d))}</span>`}
+function daysLabel(t){if(!t.days)return'';const st=D(t.start);
+  if(st&&st<=new Date()&&t.status!=='done'){const e=Math.min(t.days,Math.floor((new Date()-sod(st))/DAY)+1);return`<span>Day ${e} of ${t.days}</span>`}
+  return`<span>${t.days} day${t.days>1?'s':''} needed</span>`}
+function schedLabel(t){const st=D(t.start);if(!st||st<=new Date())return'';return`<span>Starts ${esc(rel(st))}</span>`}
+function statusSelect(t){return`<select class="pill s-${t.status}" data-act="status" aria-label="Status">`+Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${t.status===k?'selected':''}>${v}</option>`).join('')+`</select>`}
+function row(t){const m=member(t.assignee);
+  return`<div class="row ${t.status}" data-id="${t.id}">
+   <button class="check" data-act="toggle" aria-label="${t.status==='done'?'Mark not done':'Mark done'}">${t.status==='done'?I.check:''}</button>
+   <div style="min-width:0"><div class="rt" data-act="edit">${esc(t.title)}</div>
+    <div class="rm">${t.priority!=='normal'?`<span class="pri ${t.priority}">${PRI[t.priority]}</span>`:''}${dueLabel(t)}${schedLabel(t)}${daysLabel(t)}${t.source==='email'?`<span>${I.mail.replace('15','12').replace('15','12')}From email</span>`:''}${m?`<span>${esc(m.name)}</span>`:''}</div></div>
+   ${avatar(m)}${statusSelect(t)}
+   <div class="acts">
+    <button class="ibtn" data-act="email" title="Send email notification">${I.mail}</button>
+    ${(t.start||t.due)&&t.status!=='done'?`<button class="ibtn" data-act="cal" title="Add to calendar">${I.cal.replace(/16/g,'15')}</button>`:''}
+    <button class="ibtn" data-act="edit" title="Edit task">${I.edit}</button>
+    ${t.status==='done'?`<button class="ibtn" data-act="remove" title="Remove finished task (kept in reports)">${I.archive}</button>`:''}
+    <button class="ibtn bad" data-act="del" title="Delete task">${I.trash}</button>
+   </div></div>`}
+function card(t){const m=member(t.assignee);
+  return`<div class="card" draggable="true" data-id="${t.id}">
+   <div class="ct1">${t.priority==='high'?'<span class="pri high">High · </span>':''}${esc(t.title)}</div>
+   <div class="cm"><span>${t.due?(isOver(t)?'<span style="color:var(--bad)">Overdue</span>':fmtShort(D(t.due))):'No due date'}${t.days?` · ${t.days}d`:''}</span>${avatar(m)}</div></div>`}
+
+function filtered(){const q=ui.q.trim().toLowerCase();
+  return S.tasks.filter(t=>(ui.filter==='all'||t.status===ui.filter)&&(ui.person==='all'||(ui.person==='__me'?t.assignee===ME:(t.assignee===ui.person||(ui.person===''&&!t.assignee))))&&
+    (!q||(t.title+' '+t.desc+' '+(member(t.assignee)?.name||'')).toLowerCase().includes(q)))
+   .sort((a,b)=>(a.status==='done')-(b.status==='done')||(D(a.due)||8e15)-(D(b.due)||8e15))}
+
+/* ---------- views ---------- */
+const V={};
+V.overview=()=>{
+  const now=new Date(),h=now.getHours();
+  const allOpen=S.tasks.filter(t=>t.status!=='done');const mine=scope()==='mine';
+  const open=allOpen.filter(inScope);
+  const today=open.filter(isToday),over=open.filter(isOver);
+  const ws=sow(now),doneWk=[...S.tasks,...S.archive].filter(t=>t.doneAt&&new Date(t.doneAt)>=ws&&inScope(t)).length;
+  const up=open.filter(t=>t.due&&!isToday(t)&&!isOver(t)).sort((a,b)=>D(a.due)-D(b.due)).slice(0,6);
+  const focus=[...over,...today.filter(t=>!isOver(t))];
+  if(!ui.dropTo||!member(ui.dropTo))ui.dropTo=S.members.find(m=>m.role==='Staff')?.id||S.members[0]?.id||'';
+  return`
+  ${!S.members.length?`<div class="banner">${I.team}<p>Start by adding your team: admins, managers, team leaders and staff. Then create the first task.</p><button class="btn sm primary" data-act="setup">Set up the team</button></div>`:!S.tasks.length?`<div class="banner">${I.list}<p>Your team is ready. Create your first task, or drag an email into “Email to task”.</p><button class="btn sm primary" data-act="new">New task</button></div>`:''}
+  <div class="head"><div><h1>Good ${h<12?'morning':h<17?'afternoon':'evening'}${meM()?', '+esc(firstName(meM())):''}</h1><p>${now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}${mine?' · showing your tasks':meM()?' · showing the whole team':''}</p></div>
+   <div class="acts"><button class="btn" data-act="nav" data-view="reports">${I.chart} Weekly report</button></div></div>
+  <div class="stats">
+   <button class="stat" data-act="goFilter" data-f="all"><b>${today.length}</b><span><i style="background:var(--accent)"></i>Due today</span></button>
+   <button class="stat" data-act="goFilter" data-f="working"><b>${open.filter(t=>t.status==='working').length}</b><span><i style="background:var(--info)"></i>Working on it</span></button>
+   <button class="stat" data-act="goFilter" data-f="pending"><b>${open.filter(t=>t.status==='pending').length}</b><span><i style="background:var(--warn)"></i>Pending</span></button>
+   <button class="stat" data-act="goFilter" data-f="all"><b style="${over.length?'color:var(--bad)':''}">${over.length}</b><span><i style="background:var(--bad)"></i>Overdue</span></button>
+   <button class="stat" data-act="nav" data-view="reports"><b>${doneWk}</b><span><i style="background:var(--ok)"></i>Fixed this week</span></button>
+  </div>
+  <div class="grid2">
+   <div class="stack">
+    <section class="panel"><header><h2>${mine?'Your tasks today':'Needs attention today'}</h2><small>${focus.length} task${focus.length===1?'':'s'}</small></header>
+     <div class="list">${focus.length?focus.map(row).join(''):`<div class="empty">Nothing due today. Enjoy the calm.</div>`}</div></section>
+    <section class="panel"><header><h2>Coming up</h2><button class="btn ghost sm" data-act="nav" data-view="schedule">Open schedule</button></header>
+     <div class="list">${up.length?up.map(row).join(''):`<div class="empty">No upcoming deadlines.</div>`}</div></section>
+   </div>
+   <div class="stack">
+    <section class="panel"><header><h2>Email to task</h2><small>.eml · .msg · text</small></header>
+     <div class="drop" id="dropzone">
+      <div class="big">${I.inbox}</div>
+      <strong>Drag an email here</strong>
+      <p>Drop an email file or selected email text. A task is created for the person you choose, with the subject as the title.</p>
+      ${S.members.length?`<div class="row-inline"><label for="dropToSel" class="hint">Assign to</label>
+       <select class="sel" id="dropToSel">${memberOptions(ui.dropTo,false)}</select></div>`:''}
+      <div class="row-inline"><button class="btn sm" data-act="pickEmail">Choose file…</button><button class="btn sm" data-act="pasteEmail">Paste email text</button></div>
+     </div>
+     <p class="hint" style="padding:0 16px 14px">Tip: in Outlook, drag the message to your desktop first to save it as a file, then drop it here.</p>
+    </section>
+    <section class="panel"><header><h2>Team load</h2><button class="btn ghost sm" data-act="nav" data-view="team">Manage team</button></header>
+     <div class="tscroll"><table class="t"><thead><tr><th>Person</th><th>Role</th><th style="text-align:right">Open</th></tr></thead><tbody>
+     ${S.members.map(m=>`<tr><td><span style="display:inline-flex;gap:8px;align-items:center">${avatar(m)}${esc(m.name)}</span></td><td><span class="role-tag">${esc(m.role)}</span></td><td class="n">${allOpen.filter(t=>t.assignee===m.id).length}</td></tr>`).join('')||`<tr><td colspan="3" class="empty">Add people in Team.</td></tr>`}
+     </tbody></table></div></section>
+   </div>
+  </div>`};
+
+V.tasks=()=>{
+  const list=filtered();
+  const doneCt=S.tasks.filter(t=>t.status==='done').length;
+  const seg=(k,l)=>`<button class="${ui.filter===k?'on':''}" data-act="filter" data-f="${k}">${l}</button>`;
+  return`<div class="head"><div><h1>All Tasks</h1><p>${S.tasks.filter(t=>t.status!=='done').length} open · ${doneCt} done${ui.q?` · matching “${esc(ui.q)}”`:''}</p></div>
+   <div class="acts">
+    <div class="seg">${seg('all','All')}${seg('pending','Pending')}${seg('working','Working on it')}${seg('done','Done')}</div>
+    <select class="sel" id="personFilter" aria-label="Filter by person"><option value="all">Everyone</option>${meM()?`<option value="__me" ${ui.person==='__me'?'selected':''}>My tasks</option>`:''}${memberOptions(ui.person)}</select>
+    <div class="seg"><button class="${ui.mode==='list'?'on':''}" data-act="mode" data-m="list">List</button><button class="${ui.mode==='board'?'on':''}" data-act="mode" data-m="board">Board</button></div>
+    ${doneCt?`<button class="btn sm" data-act="clearDone">${I.archive} Remove finished</button>`:''}
+   </div></div>
+  ${ui.mode==='list'?`<section class="panel"><div class="list">${list.length?list.map(row).join(''):`<div class="empty">No tasks here. Press <b>New Task</b> to add one.</div>`}</div></section>`:
+  `<div class="board">${Object.entries(STATUS).map(([k,v])=>{const it=list.filter(t=>t.status===k);
+    return`<div class="col" data-drop-status="${k}"><h3><span class="pill s-${k}" style="padding:2px 9px;border-radius:999px;font-size:11.5px">${v}</span><em>${it.length}</em></h3>${it.map(card).join('')||'<p class="hint" style="padding:6px">Drag tasks here</p>'}</div>`}).join('')}</div>
+   <p class="hint" style="margin-top:10px">Drag cards between columns to change status.</p>`}`};
+
+V.schedule=()=>{
+  const ws=sow(new Date());ws.setDate(ws.getDate()+ui.week*7);
+  const days=[...Array(7)].map((_,i)=>{const d=new Date(ws);d.setDate(d.getDate()+i);return d});
+  const we=days[6];
+  const unscheduled=S.tasks.filter(t=>!t.due&&t.status!=='done');
+  return`<div class="head"><div><h1>Schedule</h1><p>${fmtShort(ws)} – ${fmtShort(we)}, ${we.getFullYear()} · drag a task to another day to reschedule</p></div>
+   <div class="acts"><div class="seg"><button data-act="week" data-d="-1" aria-label="Previous week">${I.left}</button><button data-act="week" data-d="0">This week</button><button data-act="week" data-d="1" aria-label="Next week">${I.right}</button></div>
+   ${EMBED?'':`<button class="btn" data-act="calAll">${I.cal} Add all to calendar</button>`}<button class="btn primary" data-act="new">Schedule a task</button></div></div>
+  <div class="week">${days.map(d=>{const k=dkey(d);
+    const dues=S.tasks.filter(t=>t.due&&dkey(D(t.due))===k).sort((a,b)=>D(a.due)-D(b.due));
+    const starts=S.tasks.filter(t=>t.start&&dkey(D(t.start))===k&&!(t.due&&dkey(D(t.due))===k)&&t.status!=='done');
+    return`<div class="day ${k===dkey(new Date())?'today':''}" data-drop-day="${k}"><h4><span>${d.toLocaleDateString(undefined,{weekday:'short'})}</span><b>${d.getDate()}</b></h4>
+     ${dues.map(t=>`<div class="chip ${t.status}" draggable="true" data-id="${t.id}" data-act="edit"><b style="font-weight:500">${esc(t.title)}</b><span>Due ${fmtTime(D(t.due))} · ${esc(member(t.assignee)?.name||'Unassigned')}</span></div>`).join('')}
+     ${starts.map(t=>`<div class="chip start ${t.status}" data-id="${t.id}" data-act="edit"><b style="font-weight:500">${esc(t.title)}</b><span>Starts ${fmtTime(D(t.start))}</span></div>`).join('')}
+    </div>`}).join('')}</div>
+  ${unscheduled.length?`<section class="panel" style="margin-top:22px"><header><h2>No due date yet</h2><small>Drag onto a day</small></header><div class="list">${unscheduled.map(row).join('')}</div></section>`:''}
+  <p class="hint" style="margin-top:12px">Solid edge: due that day. Dashed edge: scheduled to start that day.</p>`};
+
+V.team=()=>`<div class="head"><div><h1>Team</h1><p>${S.members.length} people · admins, managers, team leaders and staff</p></div></div>
+  <section class="panel">
+   ${canManage()?'':`<div class="banner" style="margin:14px">${I.team}<p>Only admins and managers can add, edit or remove people. This device belongs to ${esc(meM().name)} (${esc(meM().role)}).</p></div>`}
+   <form class="addform" id="addMember" ${canManage()?'':'hidden'}><input id="nm" placeholder="Full name" required aria-label="Full name"><select id="nr" aria-label="Role">${ROLES.map(r=>`<option ${r==='Staff'?'selected':''}>${r}</option>`).join('')}</select><input id="ne" type="email" placeholder="Email address" aria-label="Email address"><button class="btn primary" type="submit">Add person</button></form>
+   ${ROLES.map(r=>{const ms=S.members.filter(m=>m.role===r);return`<header style="border-top:1px solid var(--line)"><h2>${ROLE_PL[r]}</h2><small>${ms.length}</small></header>
+    <div class="team">${ms.map(m=>{const o=S.tasks.filter(t=>t.assignee===m.id&&t.status!=='done').length;
+     return`<div class="member" data-mid="${m.id}">${avatar(m,'lg')}<div class="mi"><b>${esc(m.name)}</b><small>${esc(m.email||'No email')}</small><small>${o} open task${o===1?'':'s'}</small></div>
+     ${m.id===ME?'<span class="role-tag" style="background:var(--info-bg);color:var(--info)">This device</span>':''}${canManage()?`<button class="ibtn" data-act="editMember" title="Edit">${I.edit}</button><button class="ibtn bad" data-act="delMember" title="Delete">${I.trash}</button>`:''}</div>`}).join('')||`<p class="hint">No ${ROLE_PL[r].toLowerCase()} yet.</p>`}</div>`}).join('')}
+  </section>`;
+
+function weekReport(off){
+  const ws=sow(new Date());ws.setDate(ws.getDate()+off*7);const we=new Date(ws);we.setDate(we.getDate()+7);
+  const all=[...S.tasks,...S.archive];const inW=s=>s&&new Date(s)>=ws&&new Date(s)<we;
+  const done=all.filter(t=>inW(t.doneAt)).sort((a,b)=>new Date(a.doneAt)-new Date(b.doneAt));
+  const created=all.filter(t=>inW(t.createdAt));
+  const perDay=[...Array(7)].map((_,i)=>{const d=new Date(ws);d.setDate(d.getDate()+i);return{d,n:done.filter(t=>dkey(new Date(t.doneAt))===dkey(d)).length}});
+  const per=S.members.map(m=>({m,done:done.filter(t=>t.assignee===m.id).length,open:S.tasks.filter(t=>t.assignee===m.id&&t.status!=='done').length})).sort((a,b)=>b.done-a.done);
+  const onTime=done.filter(t=>!t.due||new Date(t.doneAt)<=D(t.due)).length;
+  return{ws,we:new Date(we-1),done,created,perDay,per,onTime,email:done.filter(t=>t.source==='email').length,
+    working:S.tasks.filter(t=>t.status==='working').length,pending:S.tasks.filter(t=>t.status==='pending').length,over:S.tasks.filter(isOver).length}}
+function reportText(r){
+  return`Digital Media Task Scheduler — Weekly Report
+Week: ${fmtDay(r.ws)} – ${fmtDay(r.we)}
+
+Issues fixed: ${r.done.length} (${r.onTime} on time)
+New tasks created: ${r.created.length}
+Fixed from emails: ${r.email}
+Now working on: ${r.working} · Pending: ${r.pending} · Overdue: ${r.over}
+
+By person:
+${r.per.map(p=>`- ${p.m.name} (${p.m.role}): ${p.done} fixed, ${p.open} open`).join('\n')||'- No team members'}
+
+Completed tasks:
+${r.done.map(t=>`- ${t.title} — ${member(t.assignee)?.name||'Unassigned'} — ${fmtDay(new Date(t.doneAt))}`).join('\n')||'- None this week'}
+`}
+function chart(r){
+  const W=560,H=210,L=34,B=30,T=14,R=10,max=Math.max(4,...r.perDay.map(p=>p.n));
+  const step=max<=6?1:Math.ceil(max/5);const top=Math.ceil(max/step)*step;
+  const y=v=>T+(H-T-B)*(1-v/top),bw=(W-L-R)/7;
+  let g='';for(let v=0;v<=top;v+=step)g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" /><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="var(--fg3)">${v}</text>`;
+  const bars=r.perDay.map((p,i)=>{const x=L+i*bw+bw*.22,w=bw*.56,h=(H-T-B)-(y(p.n)-T);
+    return`<rect x="${x}" y="${y(p.n)}" width="${w}" height="${Math.max(0,h)}" rx="5" fill="var(--accent)" opacity="${p.n?1:.0}"/>${p.n?`<text x="${x+w/2}" y="${y(p.n)-5}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--fg)">${p.n}</text>`:''}<text x="${x+w/2}" y="${H-10}" text-anchor="middle" font-size="11" fill="var(--fg3)">${p.d.toLocaleDateString(undefined,{weekday:'short'})}</text>`}).join('');
+  return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Issues fixed per day">${g}${bars}</svg>`}
+V.reports=()=>{const r=weekReport(ui.rweek);const best=Math.max(1,...r.per.map(p=>p.done));
+  return`<div class="head"><div><h1>Weekly Report</h1><p>${fmtDay(r.ws)} – ${fmtDay(r.we)}</p></div>
+   <div class="acts"><div class="seg"><button data-act="rweek" data-d="-1" aria-label="Previous week">${I.left}</button><button data-act="rweek" data-d="0">This week</button><button data-act="rweek" data-d="1" aria-label="Next week">${I.right}</button></div>
+   <button class="btn" data-act="copyReport">Copy report</button><button class="btn" data-act="emailReport">${I.mail} Email report</button>${EMBED?'':`<button class="btn" data-act="csv">Export CSV</button>`}</div></div>
+  <div class="stats">
+   <div class="stat"><b style="color:var(--ok)">${r.done.length}</b><span>Issues fixed</span></div>
+   <div class="stat"><b>${r.done.length?Math.round(r.onTime/r.done.length*100):0}%</b><span>Finished on time</span></div>
+   <div class="stat"><b>${r.created.length}</b><span>New tasks created</span></div>
+   <div class="stat"><b>${r.email}</b><span>Fixed from emails</span></div>
+   <div class="stat"><b style="${r.over?'color:var(--bad)':''}">${r.over}</b><span>Overdue right now</span></div>
+  </div>
+  <div class="rgrid">
+   <section class="panel"><header><h2>Fixed per day</h2><small>${r.done.length} total</small></header><div class="chartwrap">${chart(r)}</div></section>
+   <section class="panel"><header><h2>By person</h2></header><div class="tscroll"><table class="t"><thead><tr><th>Person</th><th>Fixed</th><th></th><th style="text-align:right">Open</th></tr></thead><tbody>
+    ${r.per.map(p=>`<tr><td><span style="display:inline-flex;gap:8px;align-items:center">${avatar(p.m)}${esc(p.m.name)}</span></td><td>${p.done}</td><td style="width:35%"><div class="bar"><i style="width:${p.done/best*100}%"></i></div></td><td class="n">${p.open}</td></tr>`).join('')}
+   </tbody></table></div></section>
+  </div>
+  <section class="panel"><header><h2>Completed this week</h2></header>
+   <div class="tscroll"><table class="t"><thead><tr><th>Task</th><th>Person</th><th>Finished</th><th>Deadline</th></tr></thead><tbody>
+   ${r.done.map(t=>`<tr><td>${esc(t.title)}</td><td>${esc(member(t.assignee)?.name||'Unassigned')}</td><td>${fmtDay(new Date(t.doneAt))}</td><td>${t.due?(new Date(t.doneAt)<=D(t.due)?'<span style="color:var(--ok)">On time</span>':'<span style="color:var(--warn)">Late</span>'):'—'}</td></tr>`).join('')||`<tr><td colspan="4" class="empty">No tasks finished this week.</td></tr>`}
+   </tbody></table></div></section>`};
+
+V.settings=()=>{const np=('Notification' in window)?Notification.permission:'unsupported';
+  return`<div class="head"><div><h1>Settings & About</h1><p>Notifications, data backup and app information</p></div></div>
+  <div class="stack">
+  <section class="panel"><header><h2>This device</h2><small>Set separately on each phone and computer</small></header>
+   <div class="setrow"><div style="display:flex;gap:12px;align-items:center">${meM()?avatar(meM(),'lg'):'<span class="av none lg">All</span>'}<div><b>${meM()?esc(meM().name):'Shared device'}</b><small>${meM()?esc(meM().role)+(meM().email?' · '+esc(meM().email):''):'Not linked to one person'}</small></div></div><button class="btn" data-act="who">Change</button></div>
+   <div class="setrow"><div><b>Reminders on this device</b><small>Which tasks pop up and appear on the Overview here</small></div>
+    <select class="sel" id="scopeSel"><option value="auto" ${SCOPE==='auto'?'selected':''}>Automatic (${!meM()||['Admin','Manager'].includes(meM().role)?'everyone':'only mine'})</option><option value="mine" ${SCOPE==='mine'?'selected':''}>Only my tasks</option><option value="all" ${SCOPE==='all'?'selected':''}>All team tasks</option></select></div>
+   <p class="hint" style="padding:0 16px 14px">Automatic means admins and managers see everyone's reminders and other roles see only their own. Anyone holding the device can change this, so use the phone's own passcode to keep it private.</p>
+  </section>
+  <section class="panel"><header><h2>Notifications</h2></header>
+   <div class="setrow"><div><b>Due-day popup</b><small>Show the list of today's and overdue tasks when the app opens each day</small></div><label class="tog"><input type="checkbox" data-set="popup" ${S.settings.popup?'checked':''}><span></span></label></div>
+   <div class="setrow"><div><b>Reminder popup</b><small>Open a popup with Snooze, Mark done and Email whenever a reminder goes off</small></div><label class="tog"><input type="checkbox" data-set="alarm" ${S.settings.alarm?'checked':''}><span></span></label></div>
+   <div class="setrow"><div><b>Repeat sound until dismissed</b><small>Chime every 20 seconds while a reminder popup is open (up to 2 minutes)</small></div><label class="tog"><input type="checkbox" data-set="repeat" ${S.settings.repeat?'checked':''}><span></span></label></div>
+   <div class="setrow"><div><b>Reminder sound</b><small>Play a short chime with each reminder</small></div><label class="tog"><input type="checkbox" data-set="sound" ${S.settings.sound?'checked':''}><span></span></label></div>
+   <div class="setrow"><div><b>System notifications</b><small>${np==='granted'?'Allowed. Reminders also appear in the Windows notification center.':np==='denied'?'Blocked by the browser. Allow notifications for this app in its site settings.':np==='unsupported'?(IOS&&!STANDALONE?'On iPhone, add the app to your Home Screen first, then allow notifications here.':'Not available here. The in-app popup is used instead.'):'Show reminders in the Windows or phone notification center too, even when the app is in the background.'}</small></div>
+    ${np==='default'?`<button class="btn" data-act="askNotif">Allow</button>`:np==='granted'?`<label class="tog"><input type="checkbox" data-set="system" ${S.settings.system?'checked':''}><span></span></label>`:''}</div>
+   <div class="setrow"><div><b>Test a reminder</b><small>See what a reminder banner looks like</small></div><button class="btn" data-act="testNotif">${I.bell} Send test</button></div>
+  </section>
+  <section class="panel" id="phone"><header><h2>Use on your phone</h2><small>${STANDALONE?'Installed as an app':'iPhone and Android · free'}</small></header>
+   <div class="install">
+    ${HOSTED?`<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div id="qr"></div><div style="flex:1;min-width:160px"><h4>Scan with your phone</h4><p class="hint">Opens this app on your phone. Then add it to the Home Screen as shown here.</p><p class="hint" style="word-break:break-all;margin-top:6px">${esc(location.origin+location.pathname)}</p></div></div>`:
+    `<div><h4>1. Put it online for free</h4><ol><li>Go to <b>app.netlify.com/drop</b> (free account) or GitHub Pages.</li><li>Drag the <b>Phone app</b> folder from the download onto the page.</li><li>You get a free https link. Open it on your phone.</li></ol></div>`}
+    <div><h4>iPhone (Safari)</h4><ol><li>Open the app link in <b>Safari</b>.</li><li>Tap the <b>Share</b> button, then <b>Add to Home Screen</b>.</li><li>Open it from the Home Screen, go to Settings and tap <b>Allow</b> for notifications (iOS 16.4 or later).</li></ol></div>
+    <div><h4>Android (Chrome)</h4><ol><li>Open the app link in <b>Chrome</b>.</li><li>Tap <b>Install app</b> (or menu ⋮ › <b>Add to Home screen</b>).</li><li>Open it and tap <b>Allow</b> for notifications in Settings.</li></ol></div>
+    <div><h4>Phone and PC calendar</h4><ol><li>Tick <b>Add to my calendar</b> when saving a task, or tap the calendar button on any task.</li><li>iPhone: choose Apple Calendar. Android: choose Google Calendar. Windows PC: choose Windows Calendar or Outlook.</li><li>The event keeps its reminders, even when this app is closed.</li></ol>${EMBED?'':'<button class="btn sm" data-act="calAll" style="margin-top:8px">Add all upcoming tasks</button>'}</div>
+    <div><h4>Move your tasks to the phone</h4><ol><li>On the computer: <b>Copy backup</b> below and send it to yourself (email or notes).</li><li>On the phone: Settings › <b>Paste backup</b>.</li></ol><p class="hint" style="margin-top:6px">Each device keeps its own copy. Reminders fire while the app is open; anything missed pops up when you open it again.</p></div>
+   </div>
+  </section>
+  <section class="panel"><header><h2>Data</h2><small>Saved on this device</small></header>
+   <div class="setrow"><div><b>Back up</b><small>Copy all tasks, team and history as JSON${EMBED?'':', or save a backup file'}</small></div><div style="display:flex;gap:8px"><button class="btn" data-act="copyBackup">Copy backup</button>${EMBED?'':`<button class="btn" data-act="saveBackup">Save file</button>`}</div></div>
+   <div class="setrow"><div><b>Restore</b><small>Load a backup file or paste backup text. This replaces the current data.</small></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="pasteBackup">Paste backup</button><button class="btn" data-act="importBackup">Choose file…</button></div></div>
+   <div class="setrow"><div><b>Start over</b><small>Delete every task, person and report history</small></div><button class="btn danger" data-act="resetAll">Delete everything</button></div>
+  </section>
+  <section class="panel"><header><h2>About</h2></header>
+   <div class="about">${logo(76)}<div style="min-width:0;flex:1">
+    <h3>Digital Media Task Scheduler</h3><p>Version 1.3 · Free for Windows, iPhone and Android · Developed by <b>Suhail</b></p>
+    <div class="links">
+     <a class="btn" href="https://www.linkedin.com/in/sikunju" target="_blank" rel="noopener">${I.link} LinkedIn · sikunju</a>
+     <button class="btn primary" data-act="contact">${I.mail} Contact: sikunju@outlook.com</button>
+    </div></div></div>
+  </section></div>`};
+
+/* ---------- render ---------- */
+function render(){renderSide();const v=V[ui.view]||V.overview;const m=$('#main');const st=m.scrollTop;m.innerHTML=v();if(render.keep)m.scrollTop=st;render.keep=false;saveUi();bindView()}
+function soft(){render.keep=true;render()}
+function showQR(){const el=$('#qr');if(!el)return;const go=()=>{try{el.innerHTML='';new window.QRCode(el,{text:location.origin+location.pathname,width:128,height:128})}catch(e){el.remove()}};
+  if(window.QRCode)go();else{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';sc.onload=go;sc.onerror=()=>el.remove();document.head.appendChild(sc)}}
+function bindView(){if(ui.view==='settings'&&HOSTED)showQR();
+  const sel=$('#dropToSel');if(sel)sel.onchange=()=>{ui.dropTo=sel.value;saveUi()};
+  const pf=$('#personFilter');if(pf)pf.onchange=()=>{ui.person=pf.value;soft()};
+  const am=$('#addMember');if(am)am.onsubmit=e=>{e.preventDefault();const name=$('#nm').value.trim(),email=$('#ne').value.trim();
+    if(!name)return;if(email&&!validEmail(email)){toast({title:'Check the email address',msg:`“${email}” doesn't look like an email address.`});return}
+    S.members.push({id:uid(),name,role:$('#nr').value,email});save();soft();toast({title:'Person added',msg:`${name} joined as ${$('#nr')?$('#nr').value:''}`.trim()})};
+  const dz=$('#dropzone');if(dz){
+    dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('hot')});
+    dz.addEventListener('dragleave',()=>dz.classList.remove('hot'));
+    dz.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();dz.classList.remove('hot');hideOverlay();handleDrop(e.dataTransfer)})}
+}
+
+/* ---------- modal ---------- */
+function openModal(html,cls=''){if(alarmOpen)stopAlarm();const m=$('#modal');m.innerHTML=`<div class="scrim" data-act="closeModal"></div><div class="sheet ${cls}" role="dialog" aria-modal="true">${html}</div>`;m.hidden=false;
+  setTimeout(()=>{const f=m.querySelector('[autofocus]')||m.querySelector('input,select,textarea,button');f&&f.focus()},30);return m}
+function closeModal(){const m=$('#modal');const was=alarmOpen;m.hidden=true;m.innerHTML='';if(whoFirst){whoFirst=false;try{localStorage.setItem(KEY+'.askedMe','1')}catch(e){}boot();return}if(was){stopAlarm();alarmQ=[]}else if(alarmQ.length&&S.settings.alarm)setTimeout(()=>{if($('#modal').hidden)showAlarm(false)},200)}
+function confirmBox(title,msg,ok,fn,danger=true){openModal(`<header><h2>${esc(title)}</h2><p>${esc(msg)}</p></header><footer><button class="btn" data-act="closeModal">Cancel</button><button class="btn ${danger?'primary':'primary'}" id="okBtn" style="${danger?'background:var(--bad)':''}">${esc(ok)}</button></footer>`,'sm');
+  $('#okBtn').onclick=()=>{closeModal();fn()}}
+
+function taskModal(t,prefill){
+  const isNew=!t;const d=Object.assign({title:'',desc:'',assignee:'',priority:'normal',status:'pending',start:'',due:'',days:1,emails:[],popup:true,remindBefore:60},t||{},prefill||{});
+  let emails=[...(d.emails||[])];
+  const rb=[[0,'No early reminder'],[15,'15 minutes before'],[60,'1 hour before'],[240,'4 hours before'],[1440,'1 day before']];
+  openModal(`<form id="tf"><header><h2>${isNew?(d.source==='email'?'New task from email':'New task'):'Edit task'}</h2>${d.source==='email'&&isNew?'<p>Check the details below, then save.</p>':''}</header>
+   <div class="sb">
+    <div class="f"><label for="t_title">Task</label><input id="t_title" required value="${esc(d.title)}" placeholder="What needs to be done?" autofocus></div>
+    <div class="f"><label for="t_desc">Details</label><textarea id="t_desc" placeholder="Notes, links, file locations">${esc(d.desc)}</textarea></div>
+    <div class="fgrid">
+     <div class="f"><label for="t_as">Assign to</label><select id="t_as">${memberOptions(d.assignee)}</select></div>
+     <div class="f"><label for="t_pr">Priority</label><select id="t_pr">${Object.entries(PRI).map(([k,v])=>`<option value="${k}" ${d.priority===k?'selected':''}>${v}</option>`).join('')}</select></div>
+     <div class="f"><label for="t_st">Status</label><select id="t_st">${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`).join('')}</select></div>
+     <div class="f"><label for="t_days">Days needed to finish</label><input id="t_days" type="number" min="0" max="365" value="${d.days||0}"></div>
+     <div class="f"><label for="t_start">Scheduled start</label><input id="t_start" type="datetime-local" value="${esc(d.start)}"></div>
+     <div class="f"><label for="t_due">Deadline</label><input id="t_due" type="datetime-local" value="${esc(d.due)}"></div>
+    </div>
+    <div class="f"><label>Email notifications to</label><div class="chips" id="chips"></div>
+     <div class="quick" id="quick"></div>
+     <p class="hint">The assigned person's email is always included. Press Enter or comma after each address.</p></div>
+    <div class="fgrid">
+     <div class="f"><label for="t_rb">Reminder</label><select id="t_rb">${rb.map(([v,l])=>`<option value="${v}" ${+d.remindBefore===v?'selected':''}>${l}</option>`).join('')}</select></div>
+     <div class="f" style="justify-content:flex-end"><label class="checkline"><input type="checkbox" id="t_pop" ${d.popup?'checked':''}> Pop up on the deadline day</label></div>
+    </div>
+   </div>
+   <footer>${isNew?'':`<button type="button" class="btn danger left" data-act="del" data-id="${t.id}">Delete</button>`}
+    <div class="left" style="display:flex;flex-direction:column;gap:4px"><label class="checkline"><input type="checkbox" id="t_cal" ${isNew&&S.settings.calOnSave!==false?'checked':''}> Add to my calendar</label><label class="checkline"><input type="checkbox" id="t_mail" ${isNew?'checked':''}> Email the team</label></div>
+    <button type="button" class="btn" data-act="closeModal">Cancel</button><button class="btn primary" type="submit">${isNew?'Add task':'Save'}</button></footer></form>`);
+  const chips=$('#chips'),quick=$('#quick');
+  function drawChips(){chips.innerHTML=emails.map((e,i)=>`<span class="c">${esc(e)}<button type="button" data-i="${i}" aria-label="Remove ${esc(e)}">×</button></span>`).join('')+`<input id="t_em" type="email" placeholder="${emails.length?'Add another…':'name@company.com'}" aria-label="Add email">`;
+    const inp=$('#t_em');
+    inp.onkeydown=ev=>{if(['Enter',',',';',' '].includes(ev.key)){ev.preventDefault();addE(inp.value)}else if(ev.key==='Backspace'&&!inp.value&&emails.length){emails.pop();drawChips();$('#t_em').focus()}};
+    inp.onblur=()=>{if(inp.value.trim())addE(inp.value,false)};
+    inp.onpaste=ev=>{const tx=(ev.clipboardData||window.clipboardData).getData('text');if(/[,;\s]/.test(tx.trim())){ev.preventDefault();tx.split(/[,;\s]+/).forEach(x=>addE(x,false));drawChips();$('#t_em').focus()}};
+    quick.innerHTML=S.members.filter(m=>m.email&&!emails.includes(m.email)).map(m=>`<button type="button" data-e="${esc(m.email)}">+ ${esc(m.name)}</button>`).join('')}
+  function addE(v,refocus=true){v=v.trim().replace(/[,;]$/,'');if(!v)return;
+    if(!validEmail(v)){toast({title:'Check the email address',msg:`“${v}” doesn't look like an email address.`});return}
+    if(!emails.includes(v))emails.push(v);drawChips();if(refocus)$('#t_em').focus()}
+  chips.onclick=ev=>{const b=ev.target.closest('button[data-i]');if(b){emails.splice(+b.dataset.i,1);drawChips()}else $('#t_em').focus()};
+  quick.onclick=ev=>{const b=ev.target.closest('button[data-e]');if(b){emails.push(b.dataset.e);drawChips()}};
+  drawChips();
+  $('#tf').onsubmit=ev=>{ev.preventDefault();const pend=$('#t_em').value.trim();if(pend){if(!validEmail(pend)){toast({title:'Check the email address',msg:`“${pend}” doesn't look like an email address.`});return}if(!emails.includes(pend))emails.push(pend)}
+    const v={title:$('#t_title').value.trim(),desc:$('#t_desc').value,assignee:$('#t_as').value,priority:$('#t_pr').value,status:$('#t_st').value,
+      days:Math.max(0,parseInt($('#t_days').value)||0),start:$('#t_start').value,due:$('#t_due').value,emails,remindBefore:+$('#t_rb').value,popup:$('#t_pop').checked};
+    if(!v.title)return;
+    if(v.start&&v.due&&D(v.start)>D(v.due)){toast({title:'Check the dates',msg:'The scheduled start is after the deadline.'});return}
+    let x;
+    if(isNew){x=Object.assign({id:uid(),createdAt:new Date().toISOString(),doneAt:v.status==='done'?new Date().toISOString():'',source:d.source||'manual',n:{}},v);S.tasks.push(x)}
+    else{x=t;const dueChanged=x.due!==v.due,startChanged=x.start!==v.start;
+      if(v.status==='done'&&x.status!=='done')x.doneAt=new Date().toISOString();if(v.status!=='done')x.doneAt='';
+      Object.assign(x,v);x.n=x.n||{};if(dueChanged){delete x.n.over;delete x.n.before;delete x.n.today}if(startChanged)delete x.n.start}
+    const wantMail=$('#t_mail').checked,wantCal=$('#t_cal').checked;if(isNew)S.settings.calOnSave=wantCal;
+    save();closeModal();soft();
+    toast({title:isNew?'Task added':'Task saved',msg:x.title,icon:I.check});
+    const mail=()=>emailTask(x,isNew?'New task assigned':'Task updated');
+    if(wantCal&&(x.start||x.due))calSheet(x,wantMail?mail:null);else if(wantMail)mail()};
+}
+
+function memberModal(m){
+  openModal(`<form id="mf"><header><h2>Edit person</h2></header><div class="sb">
+   <div class="f"><label for="m_n">Name</label><input id="m_n" required value="${esc(m.name)}" autofocus></div>
+   <div class="fgrid"><div class="f"><label for="m_r">Role</label><select id="m_r">${ROLES.map(r=>`<option ${r===m.role?'selected':''}>${r}</option>`).join('')}</select></div>
+   <div class="f"><label for="m_e">Email</label><input id="m_e" type="email" value="${esc(m.email)}"></div></div></div>
+   <footer><button type="button" class="btn" data-act="closeModal">Cancel</button><button class="btn primary">Save</button></footer></form>`,'sm');
+  $('#mf').onsubmit=e=>{e.preventDefault();const em=$('#m_e').value.trim();if(em&&!validEmail(em)){toast({title:'Check the email address',msg:`“${em}” doesn't look like an email address.`});return}
+    m.name=$('#m_n').value.trim()||m.name;m.role=$('#m_r').value;m.email=em;save();closeModal();soft();toast({title:'Saved',msg:`${m.name} · ${m.role}`})};
+}
+
+/* ---------- first-run setup ---------- */
+function setupSheet(){
+  openModal(`<form id="wf"><div class="welcome">${logo(84)}<h2>Welcome to Digital Media Task Scheduler</h2><p>Free task scheduling for your media team. Start by adding yourself as the admin.</p></div>
+   <div class="sb"><div class="fgrid"><div class="f"><label for="w_n">Your name</label><input id="w_n" required placeholder="Full name" autofocus></div>
+    <div class="f"><label for="w_e">Your email</label><input id="w_e" type="email" placeholder="name@company.com"></div></div>
+    <p class="hint">You can add managers, team leaders and staff next. Everything is saved only on this device.</p></div>
+   <footer><button type="button" class="btn left" data-act="restoreFirst">Restore a backup</button><button class="btn primary">Continue</button></footer></form>`);
+  $('#wf').onsubmit=e=>{e.preventDefault();const name=$('#w_n').value.trim(),email=$('#w_e').value.trim();if(!name)return;
+    if(email&&!validEmail(email)){toast({title:'Check the email address',msg:`“${email}” doesn't look like an email address.`});return}
+    const m={id:uid(),name,role:'Admin',email};S.members.push(m);save();setMe(m.id);closeModal();ui.view='team';render();boot();
+    toast({title:`Welcome, ${firstName(m)}`,msg:'Now add your team members below.',icon:I.check,ms:8000});setTimeout(()=>{const f=$('#nm');f&&f.focus()},100)}}
+
+/* ---------- who uses this device ---------- */
+let whoFirst=false;
+function whoSheet(first){whoFirst=!!first;
+  const opt=m=>`<button class="calopt" data-act="pickMe" data-m="${m.id}" style="${m.id===ME?'box-shadow:inset 0 0 0 1.5px var(--accent)':''}">${avatar(m,'lg')}<span><b>${esc(m.name)}</b><small>${esc(m.role)}${m.email?' · '+esc(m.email):''}</small></span></button>`;
+  openModal(`<header><h2>Who uses this ${IOS||ANDROID?'phone':'device'}?</h2><p>Pick your name. This ${IOS||ANDROID?'phone':'device'} will then show your tasks and remind you about them. Each phone or computer is set once, and you can change it any time in Settings.</p></header>
+   <div class="sb"><div class="whol">${ROLES.map(r=>{const ms=S.members.filter(m=>m.role===r);return ms.length?`<h5>${ROLE_PL[r]}</h5>`+ms.map(opt).join(''):''}).join('')||'<p class="hint">Add people in Team first.</p>'}
+    <h5>Shared</h5><button class="calopt" data-act="pickMe" data-m=""><span class="av none lg">All</span><span><b>Shared device</b><small>Show and remind about everyone's tasks</small></span></button></div></div>
+   <footer><button class="btn" data-act="closeModal">${first?'Decide later':'Cancel'}</button></footer>`)}
+function needWho(){let asked=false;try{asked=!!localStorage.getItem(KEY+'.askedMe')}catch(e){}return !asked&&S.members.length>1}
+
+/* ---------- calendar integration ---------- */
+const ANDROID=/Android/i.test(navigator.userAgent);
+const WINDOWS=/Windows/i.test(navigator.userAgent);
+const icsUtc=d=>d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+const icsDay=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+const isoDay=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const icsEsc=s=>String(s??'').replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/([,;])/g,'\\$1');
+function fold(line){const out=[];while(line.length>72){out.push(line.slice(0,72));line=' '+line.slice(72)}out.push(line);return out.join('\r\n')}
+function evTimes(t){const st=D(t.start),due=D(t.due);if(!st&&!due)return null;
+  if(st&&due&&dkey(st)!==dkey(due)){const e=sod(due);e.setDate(e.getDate()+1);return{allDay:true,s:sod(st),e}}
+  if(st&&due)return{s:st,e:due>st?due:new Date(st.getTime()+30*6e4)};
+  if(st)return{s:st,e:new Date(st.getTime()+60*6e4)};
+  return{s:new Date(due.getTime()-30*6e4),e:due}}
+function whenText(t){const st=D(t.start),due=D(t.due);return[st&&`Starts ${rel(st)}`,due&&`Due ${rel(due)}`].filter(Boolean).join(' · ')}
+function calDetails(t){const m=member(t.assignee);
+  return[`Assigned to: ${m?m.name+' ('+m.role+')':'Unassigned'}`,`Status: ${STATUS[t.status]} · Priority: ${PRI[t.priority]}`,
+    t.start&&`Scheduled start: ${rel(D(t.start))}`,t.due&&`Deadline: ${rel(D(t.due))}`,t.days&&`Days needed: ${t.days}`,
+    t.desc&&`\n${t.desc}`,'\nFrom Digital Media Task Scheduler'].filter(Boolean).join('\n')}
+function vevent(t){const w=evTimes(t);if(!w)return'';const L=[];
+  L.push('BEGIN:VEVENT',`UID:${t.id}@digital-media-task-scheduler`,`DTSTAMP:${icsUtc(new Date())}`,`SEQUENCE:${Math.floor(Date.now()/60000)%2000000000}`);
+  if(w.allDay)L.push(`DTSTART;VALUE=DATE:${icsDay(w.s)}`,`DTEND;VALUE=DATE:${icsDay(w.e)}`);else L.push(`DTSTART:${icsUtc(w.s)}`,`DTEND:${icsUtc(w.e)}`);
+  L.push(`SUMMARY:${icsEsc((t.status==='done'?'✓ ':'')+t.title)}`,`DESCRIPTION:${icsEsc(calDetails(t))}`,'CATEGORIES:Digital Media Task Scheduler',`STATUS:CONFIRMED`,`PRIORITY:${t.priority==='high'?1:t.priority==='low'?9:5}`);
+  const now=new Date(),al=[];const st=D(t.start),due=D(t.due);
+  if(st)al.push([st,`Starting now: ${t.title}`]);
+  if(due){const rb=t.remindBefore>0?t.remindBefore:15;al.push([new Date(due-rb*6e4),`Due ${fmtTime(due)}: ${t.title}`])}
+  al.filter(([d])=>d>now).forEach(([d,txt])=>L.push('BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${icsEsc(txt)}`,`TRIGGER;VALUE=DATE-TIME:${icsUtc(d)}`,'END:VALARM'));
+  L.push('END:VEVENT');return L.map(fold).join('\r\n')}
+function icsFile(list){return['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Suhail//Digital Media Task Scheduler//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Digital Media Tasks',
+  ...list.map(vevent).filter(Boolean),'END:VCALENDAR'].join('\r\n')+'\r\n'}
+function googleLink(t){const w=evTimes(t);if(!w)return'';const dates=w.allDay?`${icsDay(w.s)}/${icsDay(w.e)}`:`${icsUtc(w.s)}/${icsUtc(w.e)}`;
+  return`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(t.title)}&dates=${dates}&details=${encodeURIComponent(calDetails(t).slice(0,1500))}`}
+function outlookLink(t,work){const w=evTimes(t);if(!w)return'';const f=d=>w.allDay?isoDay(d):d.toISOString();
+  return`https://outlook.${work?'office':'live'}.com/calendar/0/action/compose?rru=addevent&subject=${encodeURIComponent(t.title)}&body=${encodeURIComponent(calDetails(t).slice(0,1500))}&startdt=${encodeURIComponent(f(w.s))}&enddt=${encodeURIComponent(f(w.e))}${w.allDay?'&allday=true':''}`}
+function saveIcs(name,text){
+  if(IOS){try{const u=URL.createObjectURL(new Blob([text],{type:'text/calendar'}));const a=document.createElement('a');a.href=u;a.target='_blank';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},60000);return}catch(e){}}
+  download(name,text,'text/calendar')}
+let calCtx=null;
+function calSheet(t,next){calCtx={t,next};
+  if(!evTimes(t)){openModal(`<header><h2>Add to calendar</h2><p>“${esc(t.title)}” has no scheduled start or deadline yet. Add one, then add it to your calendar.</p></header><footer><button class="btn" data-act="closeModal">Close</button><button class="btn primary" data-act="calEdit">Set a date</button></footer>`,'sm');return}
+  const ics=EMBED?'':WINDOWS?`<button class="calopt first" data-act="calIcs"><span class="ci" style="background:#0067c0">${I.cal}</span><span><b>Windows Calendar or Outlook</b><small>Adds the event to the calendar on this PC, with reminders. Open the downloaded file, then choose Save.</small></span></button>`+
+    `<button class="calopt" data-act="calIcs"><span class="ci" style="background:#ff3b30">${I.cal}</span><span><b>Apple Calendar</b><small>iPhone, iPad and Mac. Send the event file to your phone and tap Add.</small></span></button>`:
+    `<button class="calopt ${IOS?'first':''}" data-act="calIcs"><span class="ci" style="background:#ff3b30">${I.cal}</span><span><b>Apple Calendar or Outlook app</b><small>iPhone, iPad, Mac and Outlook on Windows. Includes reminders. Open the file and tap Add.</small></span></button>`;
+  openModal(`<header><h2>Add to calendar</h2><p>${esc(t.title)}<br>${esc(whenText(t))}</p></header>
+   <div class="sb"><div class="calopts">
+    ${ics}
+    <a class="calopt ${ANDROID?'first':''}" href="${esc(googleLink(t))}" target="_blank" rel="noopener"><span class="ci" style="background:#1a73e8">${I.cal}</span><span><b>Google Calendar</b><small>Android phones and Gmail. Uses your usual Google reminders.</small></span></a>
+    <a class="calopt" href="${esc(outlookLink(t,false))}" target="_blank" rel="noopener"><span class="ci" style="background:#0f6cbd">${I.cal}</span><span><b>Outlook.com</b><small>Personal Outlook, Hotmail and Live accounts.</small></span></a>
+    <a class="calopt" href="${esc(outlookLink(t,true))}" target="_blank" rel="noopener"><span class="ci" style="background:#5b5fc7">${I.cal}</span><span><b>Outlook for work or school</b><small>Microsoft 365 accounts.</small></span></a>
+   </div><p class="hint">Calendar reminders still go off when this app is closed. If you change the task later, add it again to update the event.</p></div>
+   <footer>${next?'<button class="btn left" data-act="calNext">Next: email the team</button>':''}<button class="btn primary" data-act="closeModal">Done</button></footer>`)}
+function calAll(){const list=S.tasks.filter(t=>t.status!=='done'&&(t.start||t.due)&&(D(t.due)||D(t.start))>=sod(new Date()));
+  if(!list.length){toast({title:'Nothing to add',msg:'No open tasks with upcoming dates.'});return}
+  saveIcs(`digital-media-tasks-${dkey(new Date())}.ics`,icsFile(list));
+  toast({title:`${list.length} task${list.length>1?'s':''} ready for your calendar`,msg:'Open the downloaded file to add them all.',icon:I.cal,ms:9000})}
+
+/* ---------- email ---------- */
+function mailSheet(to,subject,body){
+  const href=`mailto:${to.map(encodeURIComponent).join(',')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  openModal(`<header><h2>Email notification</h2><p>Opens in your email app (such as Outlook) ready to send.</p></header>
+   <div class="sb"><div class="f"><label>To</label><div class="mailbox" id="mt">${esc(to.join(', ')||'No email addresses yet. Add them to the task or person.')}</div></div>
+   <div class="f"><label>Subject</label><div class="mailbox">${esc(subject)}</div></div>
+   <div class="f"><label>Message</label><div class="mailbox" id="mb">${esc(body)}</div></div></div>
+   <footer><button class="btn left" id="cpy">Copy message</button><button class="btn" data-act="closeModal">Close</button><a class="btn primary" id="openMail" href="${esc(href)}" ${EMBED?'target="_blank" rel="noopener"':''}>${I.mail} Open in email app</a></footer>`);
+  $('#cpy').onclick=()=>copy(`To: ${to.join(', ')}\nSubject: ${subject}\n\n${body}`,'Message copied');
+  $('#openMail').addEventListener('click',()=>setTimeout(closeModal,300));
+}
+function taskRecipients(t){const m=member(t.assignee);return[...new Set([m?.email,...(t.emails||[])].filter(Boolean))]}
+function emailTask(t,why='Task reminder'){const m=member(t.assignee);
+  const body=`Hello${m?' '+m.name.split(' ')[0]:''},
+
+${why}: ${t.title}
+
+Assigned to: ${m?m.name+' ('+m.role+')':'Unassigned'}
+Status: ${STATUS[t.status]}
+Priority: ${PRI[t.priority]}${t.start?`\nScheduled start: ${rel(D(t.start))}`:''}${t.due?`\nDeadline: ${rel(D(t.due))}`:''}${t.days?`\nDays needed: ${t.days}`:''}${t.desc?`\n\nDetails:\n${t.desc}`:''}${evTimes(t)?`\n\nAdd to Google Calendar:\n${googleLink(t)}`:''}
+
+— Sent from Digital Media Task Scheduler`;
+  mailSheet(taskRecipients(t),`[${STATUS[t.status]}] ${t.title}${t.due?' — due '+fmtShort(D(t.due)):''}`,body)}
+
+/* ---------- toasts & reminders ---------- */
+let audioCtx=null;
+function chime(){if(!S.settings.sound)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const t0=audioCtx.currentTime;
+  [880,1320].forEach((f,i)=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t0+i*.12);g.gain.linearRampToValueAtTime(.12,t0+i*.12+.02);g.gain.exponentialRampToValueAtTime(.001,t0+i*.12+.5);o.connect(g).connect(audioCtx.destination);o.start(t0+i*.12);o.stop(t0+i*.12+.55)})}catch(e){}}
+function toast({title,msg='',app='Digital Media Task Scheduler',icon=I.bell,actions=[],ms=6000}){
+  const el=document.createElement('div');el.className='toast';
+  el.innerHTML=`<div class="ti">${icon}</div><div class="tb"><small>${esc(app)} · now</small><b>${esc(title)}</b>${msg?`<p>${esc(msg)}</p>`:''}${actions.length?`<div class="ta">${actions.map((a,i)=>`<button class="btn sm ${i===0?'primary':''}" data-i="${i}">${esc(a.label)}</button>`).join('')}</div>`:''}</div><button class="ibtn" aria-label="Dismiss" style="align-self:flex-start">×</button>`;
+  $('#toasts').prepend(el);let tm;const kill=()=>{el.remove()};const arm=()=>{tm=setTimeout(kill,ms)};
+  el.onmouseenter=()=>clearTimeout(tm);el.onmouseleave=arm;arm();
+  el.querySelector('.ibtn').onclick=kill;
+  el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{actions[+b.dataset.i].fn();kill()});
+  while($('#toasts').children.length>4)$('#toasts').lastChild.remove()}
+/* ---------- reminder popup (alarm) ---------- */
+let alarmQ=[],alarmOpen=false,repeatT=null,flashT=null,swReg=null;const baseTitle=document.title;
+const aTask=a=>a.task||task(a.id);
+function sysNotify(t,msg){if(!S.settings.system||!('Notification' in window)||Notification.permission!=='granted')return;
+  const opt={body:msg,tag:t.id,icon:'icon-192.png',badge:'icon-192.png',requireInteraction:true,renotify:true};
+  if(swReg&&swReg.showNotification){swReg.showNotification(t.title,opt).catch(()=>{});return}
+  try{const n=new Notification(t.title,opt);n.onclick=()=>{window.focus();const x=task(t.id);if(x)taskModal(x)}}catch(e){}}
+function remind(t,msg,o={}){
+  const ex=alarmQ.find(a=>a.id===t.id);if(ex){ex.msg=msg;ex.missed=!!o.missed}else alarmQ.push({id:t.id,msg,missed:!!o.missed,task:o.keep?t:null});
+  sysNotify(t,msg);
+  if(!S.settings.alarm){chime();alarmQ=[];
+    toast({title:t.title,msg:`${msg}${member(t.assignee)?' · '+member(t.assignee).name:''}`,ms:15000,actions:[{label:'Open',fn:()=>taskModal(t)},{label:'Email',fn:()=>emailTask(t,'Reminder')},{label:'Mark done',fn:()=>setStatus(t,'done')}]});return}
+  if(!$('#modal').hidden&&!alarmOpen){chime();toast({title:t.title,msg:msg+'. The reminder opens when you close this window.',ms:8000});return}
+  showAlarm(true)}
+function showAlarm(sound){
+  alarmQ=alarmQ.filter(a=>{const t=aTask(a);return t&&(a.task||t.status!=='done')});
+  if(!alarmQ.length){if(alarmOpen)closeModal();return}
+  const n=alarmQ.length,now=new Date();
+  openModal(`<div class="ahead"><div class="bell">${I.bell.replace(/16/g,'26')}</div><div><h2>${n>1?n+' reminders':'Reminder'}</h2><p>${now.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'})}, ${fmtTime(now)}</p></div></div>
+   <div class="sb">${alarmQ.map(a=>{const t=aTask(a),m=member(t.assignee);return`<div class="aitem" data-aid="${esc(a.id)}">
+    <b>${esc(t.title)}</b>
+    <div class="am"><span class="${/passed|reached|overdue/i.test(a.msg)?'over':''}">${I.clock} ${esc(a.msg)}</span>${m?`<span>${esc(m.name)} · ${esc(m.role)}</span>`:''}${t.priority==='high'?'<span class="pri high">High priority</span>':''}${a.missed?'<span>Missed while the app was closed</span>':''}</div>
+    <div class="ab"><button class="btn sm primary" data-act="aDone">${I.check} Mark done</button><button class="btn sm" data-act="aOpen">Open</button><button class="btn sm" data-act="aEmail">${I.mail} Email</button>
+     <span style="display:inline-flex;gap:6px"><select class="sel" aria-label="Snooze for" style="width:auto"><option value="5">5 min</option><option value="10" selected>10 min</option><option value="30">30 min</option><option value="60">1 hour</option><option value="tom">Tomorrow 9 AM</option></select><button class="btn sm" data-act="aSnooze">Snooze</button></span></div></div>`}).join('')}</div>
+   <footer>${n>1?'<button class="btn left" data-act="aSnoozeAll">Snooze all 10 min</button>':''}<button class="btn primary" data-act="aDismiss">${n>1?'Dismiss all':'Dismiss'}</button></footer>`,'alarm');
+  alarmOpen=true;
+  if(sound){chime();clearInterval(repeatT);let k=0;if(S.settings.repeat)repeatT=setInterval(()=>{if(!alarmOpen||++k>6){clearInterval(repeatT);return}chime()},20000)}
+  clearInterval(flashT);let on=false;flashT=setInterval(()=>{document.title=(on=!on)?`(${alarmQ.length}) Reminder · ${aTask(alarmQ[0])?.title||''}`:baseTitle},1000)}
+function stopAlarm(){alarmOpen=false;clearInterval(repeatT);clearInterval(flashT);document.title=baseTitle}
+function dropAlarm(id){alarmQ=alarmQ.filter(a=>a.id!==id)}
+function snooze(t,v){let until;if(v==='tom'){const d=new Date();d.setDate(d.getDate()+1);d.setHours(9,0,0,0);until=d}else until=new Date(Date.now()+(+v)*6e4);
+  if(task(t.id)){t.snooze=until.toISOString();save()}toast({title:'Snoozed',msg:`${t.title} · until ${rel(until)}`,icon:I.clock})}
+function alarmAction(act,el){const box=el.closest('[data-aid]');const a=box&&alarmQ.find(x=>x.id===box.dataset.aid);const t=a&&aTask(a);
+  if(act==='aDismiss'){closeModal();return}
+  if(act==='aSnoozeAll'){alarmQ.forEach(x=>{const tt=aTask(x);if(tt)snooze(tt,10)});closeModal();return}
+  if(!t)return;dropAlarm(a.id);
+  if(act==='aDone'){if(task(t.id))setStatus(t,'done');if(alarmQ.length)showAlarm(false);else closeModal();return}
+  if(act==='aSnooze'){snooze(t,box.querySelector('select').value);if(alarmQ.length)showAlarm(false);else closeModal();return}
+  stopAlarm();
+  if(act==='aOpen'){if(task(t.id))taskModal(t);else closeModal()}
+  if(act==='aEmail')emailTask(t,'Reminder')}
+
+function tick(){const R=(t,m,o)=>{if(inScope(t))remind(t,m,o)};const now=new Date(),tk=dkey(now);let ch=false;const fresh=d=>now-d<10*6e4;const H=36e5;
+  for(const t of S.tasks){if(t.status==='done')continue;t.n=t.n||{};const due=D(t.due),st=D(t.start);
+    if(t.snooze&&now>=new Date(t.snooze)){delete t.snooze;ch=true;R(t,due?(now<due?`Snoozed reminder · due ${rel(due)}`:`Snoozed reminder · deadline passed ${rel(due)}`):'Snoozed reminder');continue}
+    if(st&&now>=st&&!t.n.start){t.n.start=1;ch=true;if(fresh(st))R(t,'Scheduled to start now');else if(now-st<12*H)R(t,`Was scheduled to start ${rel(st)}`,{missed:true})}
+    if(due&&t.remindBefore>0&&now<due&&now>=due-t.remindBefore*6e4&&!t.n.before){t.n.before=1;if(dkey(due)===tk)t.n.today=tk;ch=true;R(t,`Due ${rel(due)}`)}
+    if(due&&t.popup&&dkey(due)===tk&&now<due&&t.n.today!==tk){t.n.today=tk;ch=true;R(t,`Due today at ${fmtTime(due)}`)}
+    if(due&&now>=due&&!t.n.over){t.n.over=1;ch=true;if(fresh(due))R(t,'Deadline reached');else if(now-due<3*24*H)R(t,`Deadline passed ${rel(due)}`,{missed:true})}}
+  $('#clock').textContent=now.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+'  '+fmtTime(now);
+  if(ch){save();if($('#modal').hidden)soft();else renderSide()}}
+function dailyPopup(){const tk=dkey(new Date());if(!S.settings.popup||S.lastPopup===tk)return;if(!$('#modal').hidden){setTimeout(dailyPopup,4000);return}
+  const list=S.tasks.filter(t=>t.status!=='done'&&inScope(t)&&(isToday(t)||isOver(t))).sort((a,b)=>D(a.due)-D(b.due));
+  S.lastPopup=tk;list.forEach(t=>{t.n=t.n||{};if(isToday(t))t.n.today=tk});save();if(!list.length)return;
+  openModal(`<header><h2>${list.length} task${list.length>1?'s':''} to finish today</h2><p>Deadlines for ${new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'})}, including anything overdue.</p></header>
+   <div class="sb" style="padding:0"><div class="list">${list.map(row).join('')}</div></div>
+   <footer><button class="btn" data-act="closeModal">Later</button><button class="btn primary" data-act="closeModal">Got it</button></footer>`)}
+
+/* ---------- actions ---------- */
+function setStatus(t,s){if(!t)return;if(s==='done'&&t.status!=='done')t.doneAt=new Date().toISOString();if(s!=='done')t.doneAt='';t.status=s;save();soft();
+  if(s==='done')toast({title:'Task done',msg:t.title,icon:I.check,actions:[{label:'Remove from list',fn:()=>archiveTask(t)},{label:'Undo',fn:()=>setStatus(t,'pending')}]})}
+function archiveTask(t){S.tasks=S.tasks.filter(x=>x!==t);S.archive.push(t);save();soft()}
+function delTask(t){confirmBox('Delete this task?',`“${t.title}” will be deleted and won't appear in reports.`,'Delete',()=>{S.tasks=S.tasks.filter(x=>x!==t);save();closeModal();soft();toast({title:'Task deleted',msg:t.title,icon:I.trash})})}
+async function copy(text,ok='Copied'){try{await navigator.clipboard.writeText(text);toast({title:ok,icon:I.check})}catch(e){
+  openModal(`<header><h2>Copy this text</h2><p>Select all and copy with Ctrl+C.</p></header><div class="sb"><textarea class="inp" id="cpta" style="min-height:240px;font-family:var(--mono);font-size:12px">${esc(text)}</textarea></div><footer><button class="btn primary" data-act="closeModal">Done</button></footer>`);
+  setTimeout(()=>{const a=$('#cpta');a&&a.select()},50)}}
+function download(name,text,type){try{const b=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){copy(text)}}
+
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-act]');if(!el)return;const act=el.dataset.act;
+  const id=el.dataset.id||el.closest('[data-id]')?.dataset.id;const t=id&&task(id);
+  const mid=el.closest('[data-mid]')?.dataset.mid;
+  if(el.tagName==='SELECT')return;
+  switch(act){
+    case'nav':closeModal();ui.view=el.dataset.view;render();$('#main').scrollTop=0;break;
+    case'new':taskModal(null,ui.view==='schedule'?{due:at(1,17)}:{due:at(0,17)});break;
+    case'edit':if(t)taskModal(t);break;
+    case'toggle':setStatus(t,t.status==='done'?'pending':'done');break;
+    case'del':if(t)delTask(t);break;
+    case'remove':if(t){archiveTask(t);toast({title:'Removed from list',msg:'Still counted in the weekly report.',icon:I.archive})}break;
+    case'email':if(t)emailTask(t,'Task reminder');break;
+    case'closeModal':closeModal();break;
+    case'cal':if(t)calSheet(t);break;
+    case'who':if(!S.members.length)setupSheet();else whoSheet(false);break;
+    case'setup':setupSheet();break;
+    case'restoreFirst':closeModal();ui.view='settings';render();boot();setTimeout(()=>{const b=$('[data-act=pasteBackup]');b&&b.scrollIntoView({block:'center'})},100);break;
+    case'pickMe':{setMe(el.dataset.m);const m=meM();closeModal();soft();toast({title:m?`Hi ${firstName(m)}`:'Shared device',msg:m?`This device now shows ${m.role==='Admin'||m.role==='Manager'?'the team’s tasks and reminds you about '+(scope()==='all'?'everyone’s':'your')+' tasks':'your tasks and reminders'}.`:'Showing and reminding about everyone’s tasks.',icon:I.check});break}
+    case'calIcs':if(calCtx){saveIcs(`${calCtx.t.title.replace(/[^\w\- ]+/g,'').trim().slice(0,50)||'task'}.ics`,icsFile([calCtx.t]));toast({title:'Calendar event ready',msg:IOS?'Tap Add to Calendar.':WINDOWS?'Open the file from the Downloads list (top right), then choose Save in Calendar or Outlook.':'Open the downloaded file to add it.',icon:I.cal,ms:10000})}break;
+    case'calNext':if(calCtx&&calCtx.next){const f=calCtx.next;calCtx.next=null;f()}break;
+    case'calEdit':if(calCtx&&task(calCtx.t.id))taskModal(calCtx.t);break;
+    case'calAll':calAll();break;
+    case'aDone':case'aOpen':case'aEmail':case'aSnooze':case'aSnoozeAll':case'aDismiss':alarmAction(act,el);break;
+    case'filter':ui.filter=el.dataset.f;soft();break;
+    case'goFilter':ui.view='tasks';ui.filter=el.dataset.f;ui.mode='list';render();break;
+    case'mode':ui.mode=el.dataset.m;soft();break;
+    case'week':ui.week=+el.dataset.d===0?0:ui.week+ +el.dataset.d;soft();break;
+    case'rweek':ui.rweek=+el.dataset.d===0?0:ui.rweek+ +el.dataset.d;soft();break;
+    case'clearDone':{const d=S.tasks.filter(x=>x.status==='done');confirmBox(`Remove ${d.length} finished task${d.length>1?'s':''}?`,'They leave the task list but still count in weekly reports.','Remove',()=>{S.tasks=S.tasks.filter(x=>x.status!=='done');S.archive.push(...d);save();soft()},false);break}
+    case'editMember':{const m=member(mid);if(m)memberModal(m);break}
+    case'delMember':{const m=member(mid);if(!m)break;const n=S.tasks.filter(x=>x.assignee===m.id&&x.status!=='done').length;
+      confirmBox(`Remove ${m.name}?`,n?`Their ${n} open task${n>1?'s':''} will become unassigned.`:'They have no open tasks.','Remove',()=>{S.members=S.members.filter(x=>x!==m);S.tasks.forEach(x=>{if(x.assignee===m.id)x.assignee=''});if(ME===m.id)setMe('');save();soft()});break}
+    case'copyReport':copy(reportText(weekReport(ui.rweek)),'Report copied');break;
+    case'emailReport':{const r=weekReport(ui.rweek);mailSheet(S.members.filter(m=>m.role==='Admin'||m.role==='Manager').map(m=>m.email).filter(Boolean),`Weekly report: ${r.done.length} issues fixed (${fmtShort(r.ws)} – ${fmtShort(r.we)})`,reportText(r));break}
+    case'csv':{const all=[...S.tasks,...S.archive];const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+      download(`task-report-${dkey(new Date())}.csv`,['Task,Assigned to,Role,Status,Priority,Scheduled start,Deadline,Days needed,Finished,Source',...all.map(t=>{const m=member(t.assignee);return[t.title,m?.name,m?.role,STATUS[t.status],PRI[t.priority],t.start,t.due,t.days,t.doneAt?new Date(t.doneAt).toLocaleString():'',t.source].map(q).join(',')})].join('\r\n'),'text/csv');break}
+    case'askNotif':try{Notification.requestPermission().then(p=>{if(p==='granted'){S.settings.system=true;save()}soft()})}catch(err){soft()}break;
+    case'testNotif':remind({id:'test',title:'Export final cut for client review',assignee:S.members[0]?.id,status:'pending',priority:'normal',emails:[]},'Due today at 5:00 PM',{keep:true});break;
+    case'copyBackup':copy(JSON.stringify(S,null,1),'Backup copied');break;
+    case'saveBackup':download(`task-scheduler-backup-${dkey(new Date())}.json`,JSON.stringify(S,null,1),'application/json');break;
+    case'importBackup':$('#importFile').click();break;
+    case'pasteBackup':openModal(`<header><h2>Paste backup</h2><p>Paste the text you copied with Copy backup on your other device.</p></header><div class="sb"><textarea class="inp" id="pb" style="min-height:200px;font-family:var(--mono);font-size:12px" autofocus placeholder='{"v":1, ...}'></textarea></div><footer><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="pbGo">Restore</button></footer>`,'sm');$('#pbGo').onclick=()=>{const v=$('#pb').value;if(v.trim())restore(v)};break;
+    case'resetAll':confirmBox('Delete everything?','Every task, person and report history will be deleted from this computer. Make a backup first if you might need it.','Delete everything',()=>{S={v:1,sample:false,members:[],tasks:[],archive:[],settings:S.settings,lastPopup:dkey(new Date())};setMe('');save();render();setTimeout(setupSheet,300)});break;
+    case'contact':mailSheet(['sikunju@outlook.com'],'Digital Media Task Scheduler','Hi Suhail,\n\n');break;
+    case'pickEmail':$('#emailFile').click();break;
+    case'pasteEmail':pasteModal();break;
+  }
+});
+document.addEventListener('change',e=>{
+  const el=e.target;
+  if(el.matches('select[data-act=status]')){const t=task(el.closest('[data-id]').dataset.id);setStatus(t,el.value)}
+  if(el.matches('input[data-set]')){S.settings[el.dataset.set]=el.checked;save()}
+  if(el.id==='scopeSel'){setScope(el.value);soft()}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden)closeModal();
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'&&$('#modal').hidden){e.preventDefault();taskModal(null,{due:at(0,17)})}});
+$('#q').addEventListener('input',e=>{ui.q=e.target.value;if(ui.view!=='tasks'){ui.view='tasks';render();$('#q').focus()}else soft()});
+function restore(text){let s;try{s=JSON.parse(text.trim());if(!Array.isArray(s.tasks)||!Array.isArray(s.members))throw 0}catch(err){toast({title:"That isn't a backup",msg:'Use the text from Copy backup or a .json file saved from this app.'});return}
+  confirmBox('Restore this backup?',`${s.tasks.length} tasks and ${s.members.length} people will replace what's here now.`,'Restore',()=>{S=Object.assign({archive:[],settings:{}},s);S.settings=Object.assign({sound:true,system:false,popup:true,alarm:true,repeat:true},S.settings);save();if(ME&&!member(ME))setMe('');render();toast({title:'Backup restored',icon:I.check});if(!meM()&&S.members.length>1)setTimeout(()=>whoSheet(false),300)},false)}
+$('#importFile').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f)restore(await f.text())});
+$('#emailFile').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f)fromEmailFile(f)});
+
+/* ---------- drag & drop: tasks ---------- */
+let dragId=null;
+document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('[draggable=true][data-id]');if(!c)return;dragId=c.dataset.id;c.classList.add('dragging');
+  try{e.dataTransfer.setData('text/x-task',dragId);e.dataTransfer.effectAllowed='move'}catch(err){}});
+document.addEventListener('dragend',e=>{dragId=null;$$('.dragging').forEach(x=>x.classList.remove('dragging'));$$('.hot').forEach(x=>x.classList.remove('hot'))});
+document.addEventListener('dragover',e=>{
+  if(dragId){const z=e.target.closest('[data-drop-status],[data-drop-day]');$$('.col.hot,.day.hot').forEach(x=>{if(x!==z)x.classList.remove('hot')});if(z){e.preventDefault();z.classList.add('hot')}return}
+  if(isExternal(e)){e.preventDefault();if(!e.target.closest('#dropzone'))showOverlay()}});
+document.addEventListener('drop',e=>{
+  if(dragId){const z=e.target.closest('[data-drop-status],[data-drop-day]');const t=task(dragId);dragId=null;if(!z||!t)return;e.preventDefault();
+    if(z.dataset.dropStatus){setStatus(t,z.dataset.dropStatus)}
+    else{const [y,mo,da]=z.dataset.dropDay.split('-').map(Number);const old=D(t.due)||(()=>{const x=new Date();x.setHours(17,0,0,0);return x})();
+      const nd=new Date(old);nd.setFullYear(y,mo-1,da);
+      if(t.start){const st=D(t.start);const shift=nd-old;const ns=new Date(st.getTime()+shift);t.start=toInput(ns)}
+      t.due=toInput(nd);t.n=t.n||{};delete t.n.over;delete t.n.before;delete t.n.today;save();soft();toast({title:'Rescheduled',msg:`${t.title} → ${fmtDay(nd)}`,icon:I.cal,ms:9000,actions:[{label:'Update calendar',fn:()=>calSheet(t)}]})}
+    return}
+  if(isExternal(e)){e.preventDefault();hideOverlay();handleDrop(e.dataTransfer)}});
+function isExternal(e){const ty=Array.from(e.dataTransfer?.types||[]);return ty.includes('Files')||(ty.includes('text/plain')&&!ty.includes('text/x-task'))}
+let ovT;
+function showOverlay(){const o=$('#dropOverlay');const m=member(ui.dropTo)||S.members[0];$('#dropTo').textContent=m?`It will be assigned to ${m.name}. You can change this before saving.`:'You can choose who it goes to before saving.';o.hidden=false;clearTimeout(ovT);ovT=setTimeout(hideOverlay,700)}
+function hideOverlay(){$('#dropOverlay').hidden=true}
+document.addEventListener('dragover',()=>{if(!$('#dropOverlay').hidden){clearTimeout(ovT);ovT=setTimeout(hideOverlay,700)}});
+
+/* ---------- email parsing ---------- */
+function handleDrop(dt){if(!dt)return;
+  const f=dt.files&&dt.files[0];if(f){fromEmailFile(f);return}
+  const txt=dt.getData('text/plain');if(txt)fromText(txt);}
+async function fromEmailFile(f){const name=f.name||'email';
+  try{
+    if(/\.msg$/i.test(name)){const buf=await f.arrayBuffer();emailToTask(parseMsg(buf,name));return}
+    const text=await f.text();
+    if(/\.eml$/i.test(name)||/^(received|from|subject|date|mime-version|return-path|delivered-to|message-id|to):/im.test(text.slice(0,4000)))emailToTask(parseEml(text));
+    else fromText(text,name.replace(/\.[^.]+$/,''));
+  }catch(err){toast({title:"Couldn't read that file",msg:'Drop an email saved as .eml or .msg, or paste the email text instead.'})}}
+function fromText(txt,fallback){const lines=txt.replace(/\r/g,'').split('\n');
+  const sub=(txt.match(/^subject:\s*(.+)$/im)||[])[1];const from=(txt.match(/^from:\s*(.+)$/im)||[])[1];
+  const title=(sub||lines.find(l=>l.trim())||fallback||'Task from email').trim().slice(0,140);
+  emailToTask({subject:title,from:from||'',date:'',body:txt.trim()})}
+function decodeWords(s){return s.replace(/=\?([^?]+)\?([BQbq])\?([^?]*)\?=/g,(m,cs,enc,data)=>{try{
+  const bytes=enc.toUpperCase()==='B'?Uint8Array.from(atob(data),c=>c.charCodeAt(0)):qpBytes(data.replace(/_/g,' '));
+  return new TextDecoder(cs.toLowerCase()).decode(bytes)}catch(e){return data}}).replace(/\?=\s+=\?/g,'')}
+function qpBytes(s){const out=[];s=s.replace(/=\r?\n/g,'');for(let i=0;i<s.length;i++){if(s[i]==='='&&/^[0-9A-F]{2}$/i.test(s.substr(i+1,2))){out.push(parseInt(s.substr(i+1,2),16));i+=2}else out.push(s.charCodeAt(i)&255)}return Uint8Array.from(out)}
+function splitPart(raw){const m=raw.match(/\r?\n\r?\n/);if(!m)return{head:raw,body:''};return{head:raw.slice(0,m.index).replace(/\r?\n[ \t]+/g,' '),body:raw.slice(m.index+m[0].length)}}
+const hdr=(head,k)=>{const m=head.match(new RegExp('^'+k+':[ \\t]*(.*)$','im'));return m?m[1].trim():''};
+function partText(raw){const {head,body}=splitPart(raw);const ct=hdr(head,'content-type').toLowerCase()||'text/plain';
+  const b=ct.match(/boundary="?([^";]+)"?/i);
+  if(ct.startsWith('multipart/')&&b){const parts=body.split('--'+b[1]).slice(1).filter(p=>!p.startsWith('--'));
+    let html='';for(const p of parts){const r=partText(p.replace(/^\r?\n/,''));if(r.type==='plain'&&r.text.trim())return r;if(r.type==='html'&&!html)html=r.text}
+    return{type:'plain',text:html}}
+  if(!ct.startsWith('text/'))return{type:'other',text:''};
+  const cs=(ct.match(/charset="?([^";]+)"?/)||[])[1]||'utf-8';const te=hdr(head,'content-transfer-encoding').toLowerCase();
+  let bytes;if(te==='base64'){bytes=Uint8Array.from(atob(body.replace(/\s+/g,'')),c=>c.charCodeAt(0))}else if(te==='quoted-printable'){bytes=qpBytes(body)}else bytes=null;
+  let text;try{text=bytes?new TextDecoder(cs).decode(bytes):body}catch(e){text=bytes?new TextDecoder().decode(bytes):body}
+  if(ct.startsWith('text/html')){const d=new DOMParser().parseFromString(text,'text/html');d.querySelectorAll('style,script').forEach(x=>x.remove());return{type:'html',text:(d.body?.innerText||d.body?.textContent||'').replace(/\n{3,}/g,'\n\n')}}
+  return{type:'plain',text}}
+function parseEml(text){const {head}=splitPart(text);
+  return{subject:decodeWords(hdr(head,'subject')),from:decodeWords(hdr(head,'from')),date:hdr(head,'date'),body:partText(text).text.trim()}}
+function parseMsg(buf,name){const u8=new Uint8Array(buf);
+  const utf16=new TextDecoder('utf-16le').decode(u8.subarray(0,u8.length-(u8.length%2)));
+  const latin=new TextDecoder('latin1').decode(u8);
+  const strs=(utf16.match(/[\x20-\x7E -ɏ؀-ۿ\r\n\t]{6,}/g)||[]).map(s=>s.trim()).filter(s=>s.length>5);
+  const from=(latin.match(/[\w.+-]+@[\w-]+\.[\w.-]+/)||utf16.match(/[\w.+-]+@[\w-]+\.[\w.-]+/)||[''])[0];
+  const body=strs.filter(s=>/\s/.test(s)&&!/^(IPM\.|Microsoft|SMTP|EX|\/O=)/.test(s)).sort((a,b)=>b.length-a.length)[0]||'';
+  return{subject:name.replace(/\.msg$/i,''),from,date:'',body:body.slice(0,3000)}}
+function emailToTask(m){
+  const body=(m.body||'').replace(/\n{3,}/g,'\n\n').slice(0,3500);
+  const desc=[m.from&&`From: ${m.from}`,m.date&&`Received: ${m.date}`].filter(Boolean).join('\n')+(body?`\n\n${body}`:'');
+  const subj=(m.subject||'').replace(/^((re|fw|fwd)\s*:\s*)+/i,'').trim()||'Task from email';
+  taskModal(null,{title:subj,desc:desc.trim(),assignee:ui.dropTo||'',source:'email',due:at(1,17),days:1,priority:/urgent|asap|important/i.test(subj+body.slice(0,300))?'high':'normal'})}
+function pasteModal(){openModal(`<header><h2>Paste email text</h2><p>Paste the whole email. The subject or first line becomes the task title.</p></header>
+  <div class="sb"><div class="f"><label for="pe">Email</label><textarea id="pe" style="min-height:200px" autofocus placeholder="Subject: Logo looks blurry on the homepage video&#10;From: client@example.com&#10;&#10;Hi team…"></textarea></div>
+  <div class="f"><label for="peTo">Assign to</label><select id="peTo">${memberOptions(ui.dropTo)}</select></div></div>
+  <footer><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="peGo">Create task</button></footer>`,'sm');
+  $('#peGo').onclick=()=>{const v=$('#pe').value.trim();if(!v){$('#pe').focus();return}ui.dropTo=$('#peTo').value;closeModal();fromText(v)}}
+document.addEventListener('paste',e=>{if(ui.view!=='overview'||!$('#modal').hidden)return;const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;
+  const tx=e.clipboardData?.getData('text');if(tx&&tx.trim().length>3){e.preventDefault();fromText(tx)}});
+
+/* ---------- start ---------- */
+if('serviceWorker' in navigator&&HOSTED){navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(r=>{swReg=r}).catch(()=>{});
+  navigator.serviceWorker.addEventListener('message',e=>{const x=e.data&&task(e.data.open);if(x)taskModal(x)})}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
+window.addEventListener('focus',()=>tick());
+let booted=false;function boot(){if(booted)return;booted=true;tick();setInterval(tick,15000);setTimeout(dailyPopup,600)}
+if(ME&&!member(ME))setMe('');
+renderLogo();render();if(!S.members.length){boot();setTimeout(setupSheet,350)}else if(needWho())setTimeout(()=>whoSheet(true),400);else boot();
+try{const qt=new URLSearchParams(location.search).get('task');if(qt&&task(qt))setTimeout(()=>taskModal(task(qt)),900)}catch(e){}
+})();
+</script>
+
+</body>
+</html>

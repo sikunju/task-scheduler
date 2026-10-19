@@ -1,0 +1,29 @@
+{
+ "name": "Digital Media Task Scheduler",
+ "short_name": "Task Scheduler",
+ "description": "Free task scheduler for media teams, by Suhail",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "any",
+ "background_color": "#f3f4f7",
+ "theme_color": "#0a7aff",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-maskable.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
