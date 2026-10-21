@@ -83,6 +83,13 @@ button{cursor:pointer}
 .tb-title{font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
 .tb-title small{font-weight:400;color:var(--fg3);margin-left:6px}
 .tb-tools{display:flex;gap:8px;align-items:center;flex:none}
+.syncchip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--fg2);padding:3px 9px;border-radius:999px;background:var(--hover);white-space:nowrap}
+.syncchip i,.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none;background:var(--warn)}
+.syncchip.ok i,.dot.ok{background:var(--ok)}.syncchip.bad i,.dot.bad{background:var(--bad)}
+.syncchip.warn i{animation:blink 1.6s ease-in-out infinite}@keyframes blink{50%{opacity:.35}}
+#syncStatus{display:flex;align-items:center;gap:8px}
+ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;color:var(--fg2);font-size:13px}
+ol.steps b{color:var(--fg)}
 .mebtn{display:flex;align-items:center;gap:7px;border:0;background:transparent;border-radius:999px;padding:3px 10px 3px 3px;font-size:13px;color:var(--fg)}
 .mebtn:hover{background:var(--hover)}
 .mebtn .av{width:24px;height:24px;font-size:10px}
@@ -247,7 +254,7 @@ select.pill{appearance:none;-webkit-appearance:none;border:0;border-radius:999px
 .mailbox{background:var(--sunk);border-radius:8px;padding:10px 12px;font-size:12.5px;white-space:pre-wrap;word-break:break-word;user-select:text;max-height:220px;overflow:auto;font-family:var(--mono)}
 
 /* toasts (notification banners top-right) */
-#toasts{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:60;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100% - 28px))}
+#toasts{position:fixed;top:calc(62px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));z-index:60;display:flex;flex-direction:column;gap:10px;width:min(360px,calc(100% - 28px))}
 .toast{background:var(--bar);backdrop-filter:blur(30px);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.22),0 0 0 .5px var(--line2);padding:11px 13px;display:flex;gap:10px;animation:slide .35s cubic-bezier(.2,.9,.3,1.15)}
 @keyframes slide{from{transform:translateX(110%)}}
 .toast .ti{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}
@@ -331,7 +338,8 @@ a.btn{text-decoration:none;color:inherit}
 @media (max-width:760px){
   body{padding:0;background:var(--bar);background-image:none}
   .win{border-radius:0;box-shadow:none;animation:none;max-width:none}
-  .lights,.search,.tb-title small,.mebtn .mn{display:none}
+  .lights,.search,.tb-title small,.mebtn .mn,.syncchip span{display:none}
+  .syncchip{padding:6px}
   .mebtn{padding:3px}
   .titlebar{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));height:54px}
   .tb-title{font:700 17px var(--font-d)}
@@ -369,6 +377,7 @@ a.btn{text-decoration:none;color:inherit}
     <span id="tbLogo"></span><div class="tb-title">Digital Media Task Scheduler <small id="clock"></small></div>
     <div class="tb-tools">
       <label class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search tasks" aria-label="Search tasks"></label>
+      <span id="syncChip" class="syncchip" hidden></span>
       <button class="mebtn" id="meBtn" data-act="who" title="Who uses this device"></button>
       <button class="btn primary" data-act="new"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 5v14M5 12h14"/></svg>New Task</button>
     </div>
@@ -395,6 +404,7 @@ const ROLES=['Admin','Manager','Team Leader','Staff'];
 const ROLE_PL={'Admin':'Admins','Manager':'Managers','Team Leader':'Team Leaders','Staff':'Staff'};
 const STATUS={pending:'Pending',working:'Working on it',done:'Done'};
 const PRI={high:'High',normal:'Normal',low:'Low'};
+const NATIVE=!!window.__DMTS_NATIVE__;
 const EMBED=(()=>{try{return window.self!==window.top}catch(e){return true}})();
 try{if(new URLSearchParams(location.search).has('app')||matchMedia('(display-mode: standalone)').matches)document.documentElement.classList.add('appwin')}catch(e){}
 const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -449,8 +459,9 @@ function load(){let s=null;try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){
   if(!s||!Array.isArray(s.tasks)||s.sample)s=seed();
   s.archive=s.archive||[];s.settings=Object.assign({sound:true,system:false,popup:true,alarm:true,repeat:true},s.settings||{});return s}
 let S=load();
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-save();
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){saveLocal();schedulePush()}
+saveLocal();
 const ui={view:'overview',filter:'all',person:'all',mode:'list',week:0,rweek:0,q:'',dropTo:''};
 try{const u=JSON.parse(localStorage.getItem(KEY+'.ui'));if(u)Object.assign(ui,u,{q:'',week:0,rweek:0})}catch(e){}
 function saveUi(){try{localStorage.setItem(KEY+'.ui',JSON.stringify({view:ui.view,filter:ui.filter,person:ui.person,mode:ui.mode,dropTo:ui.dropTo}))}catch(e){}}
@@ -482,7 +493,7 @@ const isToday=t=>t.due&&dkey(D(t.due))===dkey(new Date());
 const VIEWS=[['overview','Overview',I.home,'Home'],['tasks','All Tasks',I.list,'Tasks'],['schedule','Schedule',I.cal,'Schedule'],['team','Team',I.team,'Team'],['reports','Weekly Report',I.chart,'Report'],['settings','Settings & About',I.gear,'Settings']];
 function renderLogo(){const t=$('#tbLogo');if(t)t.innerHTML=logo(22)}
 function renderMe(){const b=$('#meBtn');if(!b)return;const m=meM();b.innerHTML=m?`${avatar(m)}<span class="mn">${esc(firstName(m))}</span>`:`<span class="av none">?</span><span class="mn">Who's this?</span>`}
-function renderSide(){renderMe();
+function renderSide(){renderMe();renderSyncChip();
   const open=S.tasks.filter(t=>t.status!=='done').length;
   const counts={tasks:open,team:S.members.length};
   $('#side').innerHTML=`<h6>Workspace</h6>`+VIEWS.slice(0,3).map(navBtn(counts)).join('')+`<h6>Organization</h6>`+VIEWS.slice(3).map(navBtn(counts)).join('')+
@@ -678,12 +689,20 @@ V.settings=()=>{const np=('Notification' in window)?Notification.permission:'uns
     <select class="sel" id="scopeSel"><option value="auto" ${SCOPE==='auto'?'selected':''}>Automatic (${!meM()||['Admin','Manager'].includes(meM().role)?'everyone':'only mine'})</option><option value="mine" ${SCOPE==='mine'?'selected':''}>Only my tasks</option><option value="all" ${SCOPE==='all'?'selected':''}>All team tasks</option></select></div>
    <p class="hint" style="padding:0 16px 14px">Automatic means admins and managers see everyone's reminders and other roles see only their own. Anyone holding the device can change this, so use the phone's own passcode to keep it private.</p>
   </section>
+  <section class="panel" id="sync"><header><h2>Live sync</h2><small>${SY?esc(SY.name||'Team'):'Free · Google Firebase'}</small></header>
+   ${SY?`<div class="setrow"><div><b id="syncStatus">${syncStatusHtml()}</b><small>Tasks and team are shared with every connected phone and computer. Reminders, notifications and “who uses this device” stay per device.</small></div></div>
+    <div class="setrow"><div><b>Connect another device</b><small>Show the QR code, join link and code for phones and computers</small></div><button class="btn primary" data-act="invite">Invite a device</button></div>
+    <div class="setrow"><div><b>Stop sync on this device</b><small>Keeps a copy of the tasks here</small></div><button class="btn" data-act="leaveSync">Stop sync</button></div>`:
+   `<div class="setrow"><div><b>Share tasks between the PC and phones</b><small>Everyone sees the same tasks and team, updated within seconds, and it keeps working offline</small></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="joinSync">Join a team</button>${canManage()?'<button class="btn primary" data-act="setupSync">Set up live sync</button>':''}</div></div>`}
+  </section>
   <section class="panel"><header><h2>Notifications</h2></header>
    <div class="setrow"><div><b>Due-day popup</b><small>Show the list of today's and overdue tasks when the app opens each day</small></div><label class="tog"><input type="checkbox" data-set="popup" ${S.settings.popup?'checked':''}><span></span></label></div>
    <div class="setrow"><div><b>Reminder popup</b><small>Open a popup with Snooze, Mark done and Email whenever a reminder goes off</small></div><label class="tog"><input type="checkbox" data-set="alarm" ${S.settings.alarm?'checked':''}><span></span></label></div>
    <div class="setrow"><div><b>Repeat sound until dismissed</b><small>Chime every 20 seconds while a reminder popup is open (up to 2 minutes)</small></div><label class="tog"><input type="checkbox" data-set="repeat" ${S.settings.repeat?'checked':''}><span></span></label></div>
    <div class="setrow"><div><b>Reminder sound</b><small>Play a short chime with each reminder</small></div><label class="tog"><input type="checkbox" data-set="sound" ${S.settings.sound?'checked':''}><span></span></label></div>
-   <div class="setrow"><div><b>System notifications</b><small>${np==='granted'?'Allowed. Reminders also appear in the Windows notification center.':np==='denied'?'Blocked by the browser. Allow notifications for this app in its site settings.':np==='unsupported'?(IOS&&!STANDALONE?'On iPhone, add the app to your Home Screen first, then allow notifications here.':'Not available here. The in-app popup is used instead.'):'Show reminders in the Windows or phone notification center too, even when the app is in the background.'}</small></div>
+   ${NATIVE?`<div class="setrow"><div><b>Windows notifications</b><small>Show reminders in the Windows notification area, even when the app window is behind other windows</small></div><label class="tog"><input type="checkbox" data-set="winToast" ${S.settings.winToast!==false?'checked':''}><span></span></label></div>
+   <div class="setrow"><div><b>Start with Windows</b><small>Open the app minimized when you sign in, so reminders are never missed</small></div><label class="tog"><input type="checkbox" id="autoTog"><span></span></label></div>`:''}
+   <div class="setrow" ${NATIVE?'hidden':''}><div><b>System notifications</b><small>${np==='granted'?'Allowed. Reminders also appear in the Windows notification center.':np==='denied'?'Blocked by the browser. Allow notifications for this app in its site settings.':np==='unsupported'?(IOS&&!STANDALONE?'On iPhone, add the app to your Home Screen first, then allow notifications here.':'Not available here. The in-app popup is used instead.'):'Show reminders in the Windows or phone notification center too, even when the app is in the background.'}</small></div>
     ${np==='default'?`<button class="btn" data-act="askNotif">Allow</button>`:np==='granted'?`<label class="tog"><input type="checkbox" data-set="system" ${S.settings.system?'checked':''}><span></span></label>`:''}</div>
    <div class="setrow"><div><b>Test a reminder</b><small>See what a reminder banner looks like</small></div><button class="btn" data-act="testNotif">${I.bell} Send test</button></div>
   </section>
@@ -694,7 +713,7 @@ V.settings=()=>{const np=('Notification' in window)?Notification.permission:'uns
     <div><h4>iPhone (Safari)</h4><ol><li>Open the app link in <b>Safari</b>.</li><li>Tap the <b>Share</b> button, then <b>Add to Home Screen</b>.</li><li>Open it from the Home Screen, go to Settings and tap <b>Allow</b> for notifications (iOS 16.4 or later).</li></ol></div>
     <div><h4>Android (Chrome)</h4><ol><li>Open the app link in <b>Chrome</b>.</li><li>Tap <b>Install app</b> (or menu ⋮ › <b>Add to Home screen</b>).</li><li>Open it and tap <b>Allow</b> for notifications in Settings.</li></ol></div>
     <div><h4>Phone and PC calendar</h4><ol><li>Tick <b>Add to my calendar</b> when saving a task, or tap the calendar button on any task.</li><li>iPhone: choose Apple Calendar. Android: choose Google Calendar. Windows PC: choose Windows Calendar or Outlook.</li><li>The event keeps its reminders, even when this app is closed.</li></ol>${EMBED?'':'<button class="btn sm" data-act="calAll" style="margin-top:8px">Add all upcoming tasks</button>'}</div>
-    <div><h4>Move your tasks to the phone</h4><ol><li>On the computer: <b>Copy backup</b> below and send it to yourself (email or notes).</li><li>On the phone: Settings › <b>Paste backup</b>.</li></ol><p class="hint" style="margin-top:6px">Each device keeps its own copy. Reminders fire while the app is open; anything missed pops up when you open it again.</p></div>
+    <div><h4>Connect the phone to your tasks</h4><ol><li>On the admin's PC: Settings › <b>Live sync</b> › <b>Invite a device</b>.</li><li>Scan the QR code with the phone, or paste the join code in the phone app: Settings › Live sync › <b>Join a team</b>.</li></ol><p class="hint" style="margin-top:6px">Reminders fire while the app is open; anything missed pops up when you open it again.</p></div>
    </div>
   </section>
   <section class="panel"><header><h2>Data</h2><small>Saved on this device</small></header>
@@ -704,7 +723,7 @@ V.settings=()=>{const np=('Notification' in window)?Notification.permission:'uns
   </section>
   <section class="panel"><header><h2>About</h2></header>
    <div class="about">${logo(76)}<div style="min-width:0;flex:1">
-    <h3>Digital Media Task Scheduler</h3><p>Version 1.3 · Free for Windows, iPhone and Android · Developed by <b>Suhail</b></p>
+    <h3>Digital Media Task Scheduler</h3><p>Version 1.5 · Free for Windows, iPhone and Android · Developed by <b>Suhail</b></p>
     <div class="links">
      <a class="btn" href="https://www.linkedin.com/in/sikunju" target="_blank" rel="noopener">${I.link} LinkedIn · sikunju</a>
      <button class="btn primary" data-act="contact">${I.mail} Contact: sikunju@outlook.com</button>
@@ -717,6 +736,7 @@ function soft(){render.keep=true;render()}
 function showQR(){const el=$('#qr');if(!el)return;const go=()=>{try{el.innerHTML='';new window.QRCode(el,{text:location.origin+location.pathname,width:128,height:128})}catch(e){el.remove()}};
   if(window.QRCode)go();else{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';sc.onload=go;sc.onerror=()=>el.remove();document.head.appendChild(sc)}}
 function bindView(){if(ui.view==='settings'&&HOSTED)showQR();
+  const at=$('#autoTog');if(at&&window.getAutostart){window.getAutostart().then(v=>{at.checked=!!v}).catch(()=>{});at.onchange=()=>window.setAutostart(at.checked).then(()=>toast({title:at.checked?'Starts with Windows':'Won’t start with Windows',icon:I.check})).catch(()=>{at.checked=!at.checked})}
   const sel=$('#dropToSel');if(sel)sel.onchange=()=>{ui.dropTo=sel.value;saveUi()};
   const pf=$('#personFilter');if(pf)pf.onchange=()=>{ui.person=pf.value;soft()};
   const am=$('#addMember');if(am)am.onsubmit=e=>{e.preventDefault();const name=$('#nm').value.trim(),email=$('#ne').value.trim();
@@ -802,13 +822,154 @@ function memberModal(m){
     m.name=$('#m_n').value.trim()||m.name;m.role=$('#m_r').value;m.email=em;save();closeModal();soft();toast({title:'Saved',msg:`${m.name} · ${m.role}`})};
 }
 
+/* ---------- live sync (Firebase Firestore, free plan) ---------- */
+var SYNC={state:'off',err:'',db:null,app:null,unsub:[],ready:false,sent:{},timer:null,justJoined:false,got:{}};
+const SYNC_KEY=KEY+'.sync';
+const PUBLIC_URL='https://sikunju.github.io/task-scheduler/';
+const FB='https://cdn.jsdelivr.net/npm/firebase@10.12.2/';
+let SY=null;try{SY=JSON.parse(localStorage.getItem(SYNC_KEY))}catch(e){}
+try{SYNC.sent=JSON.parse(localStorage.getItem(SYNC_KEY+'.sent'))||{}}catch(e){}
+const DEVICE=(()=>{let d='';try{d=localStorage.getItem(KEY+'.device')}catch(e){}if(!d){d=uid()+uid();try{localStorage.setItem(KEY+'.device',d)}catch(e){}}return d})();
+function saveSY(){try{SY?localStorage.setItem(SYNC_KEY,JSON.stringify(SY)):localStorage.removeItem(SYNC_KEY);localStorage.setItem(SYNC_KEY+'.sent',JSON.stringify(SYNC.sent))}catch(e){}}
+function randId(n){const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';const b=new Uint8Array(n);crypto.getRandomValues(b);return Array.from(b,x=>a[x%a.length]).join('')}
+const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const unb64u=s=>decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))));
+function joinCode(){return 'DMTS1.'+b64u(JSON.stringify({a:SY.cfg.apiKey,p:SY.cfg.projectId,i:SY.cfg.appId,d:SY.cfg.authDomain||'',t:SY.team,n:SY.name||''}))}
+function joinLink(){return(HOSTED?location.origin+location.pathname:PUBLIC_URL)+'#join='+joinCode()}
+function parseJoin(text){const m=String(text||'').match(/DMTS1\.[A-Za-z0-9_-]+/);if(!m)return null;
+  try{const o=JSON.parse(unb64u(m[0].slice(6)));if(!o.a||!o.p||!o.t||o.t.length<20)return null;return{cfg:{apiKey:o.a,projectId:o.p,appId:o.i,authDomain:o.d||o.p+'.firebaseapp.com'},team:o.t,name:o.n||''}}catch(e){return null}}
+function parseConfig(text){const o={};String(text||'').replace(/["']?(\w+)["']?\s*:\s*["']([^"']+)["']/g,(m,k,v)=>{o[k]=v});
+  if(!o.apiKey||!o.projectId||!o.appId)return null;return{apiKey:o.apiKey,authDomain:o.authDomain||o.projectId+'.firebaseapp.com',projectId:o.projectId,appId:o.appId}}
+function loadScript(src){return new Promise((ok,no)=>{if(document.querySelector(`script[src="${src}"]`)&&window.firebase){ok();return}const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)})}
+function setSync(state,err=''){SYNC.state=state;SYNC.err=err;renderSyncChip();const p=$('#syncStatus');if(p)p.innerHTML=syncStatusHtml()}
+const cleanTask=t=>{const o={...t};delete o.n;delete o.snooze;return o};
+const sig=(c,o,arch)=>JSON.stringify(c==='tasks'?[cleanTask(o),!!arch]:o);
+async function startSync(){
+  if(!SY||SYNC.db)return;
+  if(EMBED){setSync('error','Live sync works in the Windows app and the phone app, not in this preview.');return}
+  setSync('connecting');
+  try{if(!window.firebase||!window.firebase.firestore){await loadScript(FB+'firebase-app-compat.js');await loadScript(FB+'firebase-firestore-compat.js')}}
+  catch(e){setSync('offline','The sync service could not load. Check the internet connection; changes are kept on this device meanwhile.');setTimeout(()=>{if(SY&&!SYNC.db)startSync()},60000);return}
+  try{
+    const name='dmts-'+SY.team.slice(0,8);
+    const app=firebase.apps.find(a=>a.name===name)||firebase.initializeApp(SY.cfg,name);
+    const db=app.firestore();
+    try{await db.enablePersistence({synchronizeTabs:true})}catch(e){}
+    SYNC.app=app;SYNC.db=db;SYNC.ready=false;SYNC.got={};
+    const base=db.collection('teams').doc(SY.team);
+    ['tasks','members'].forEach(c=>{
+      SYNC.unsub.push(base.collection(c).onSnapshot({includeMetadataChanges:true},snap=>{
+        applyRemote(c,snap);SYNC.got[c]=true;
+        if(SYNC.got.tasks&&SYNC.got.members&&!SYNC.ready&&(!snap.metadata.fromCache||!navigator.onLine)){SYNC.ready=true;pushNow();
+          if(SYNC.justJoined){SYNC.justJoined=false;render();toast({title:'Connected to your team',msg:`${S.tasks.length} tasks and ${S.members.length} people loaded.`,icon:I.check,ms:8000});if(!meM()&&S.members.length)setTimeout(()=>whoSheet(false),400)}}
+        setSync(snap.metadata.fromCache?'offline':'live');
+      },err=>{setSync('error',/permission/i.test(err.message)?'The database refused access. Check the security rules in Firebase.':err.message)}))});
+  }catch(e){setSync('error',e.message);SYNC.db=null}
+}
+async function stopSync(){SYNC.unsub.forEach(f=>{try{f()}catch(e){}});SYNC.unsub=[];SYNC.ready=false;
+  const app=SYNC.app;SYNC.db=null;SYNC.app=null;if(app){try{await app.delete()}catch(e){}}setSync('off')}
+function applyRemote(c,snap){let changed=false;
+  snap.docChanges().forEach(ch=>{const d=ch.doc;if(d.metadata&&d.metadata.hasPendingWrites)return;
+    const raw=d.data()||{};const {_del,_arch,_at,_by,...obj}=raw;const id=d.id;const key=c+':'+id;obj.id=id;
+    if(ch.type==='removed'||_del){
+      if(c==='tasks'){const b=S.tasks.length+S.archive.length;S.tasks=S.tasks.filter(t=>t.id!==id);S.archive=S.archive.filter(t=>t.id!==id);if(S.tasks.length+S.archive.length!==b)changed=true}
+      else{const b=S.members.length;S.members=S.members.filter(m=>m.id!==id);if(b!==S.members.length){changed=true;S.tasks.forEach(t=>{if(t.assignee===id)t.assignee=''});if(ME===id)setMe('')}}
+      SYNC.sent[key]='__del';return}
+    const s=sig(c,obj,_arch);if(SYNC.sent[key]===s)return;
+    if(c==='tasks'){const loc=S.tasks.find(t=>t.id===id)||S.archive.find(t=>t.id===id);
+      if(loc){if(loc.n)obj.n=loc.n;if(loc.snooze)obj.snooze=loc.snooze;
+        if(loc.due!==obj.due&&obj.n){delete obj.n.over;delete obj.n.before;delete obj.n.today}if(loc.start!==obj.start&&obj.n)delete obj.n.start}
+      else obj.n={};
+      S.tasks=S.tasks.filter(t=>t.id!==id);S.archive=S.archive.filter(t=>t.id!==id);(_arch?S.archive:S.tasks).push(obj)}
+    else{const i=S.members.findIndex(m=>m.id===id);if(i>=0)S.members[i]=obj;else S.members.push(obj)}
+    SYNC.sent[key]=s;changed=true});
+  if(changed){saveLocal();saveSY();if($('#modal').hidden)soft();else renderSide()}}
+function schedulePush(){if(!SYNC||!SYNC.ready)return;clearTimeout(SYNC.timer);SYNC.timer=setTimeout(pushNow,250)}
+function pushNow(){if(!SYNC.ready||!SYNC.db||!SY)return;const db=SYNC.db;const base=db.collection('teams').doc(SY.team);
+  const at=firebase.firestore.FieldValue.serverTimestamp();const ops=[];const seen=new Set();
+  const add=(c,o,arch)=>{const key=c+':'+o.id;seen.add(key);const s=sig(c,o,arch);if(SYNC.sent[key]!==s){ops.push([c,o.id,{...(c==='tasks'?cleanTask(o):o),_arch:!!arch,_del:false,_at:at,_by:DEVICE}]);SYNC.sent[key]=s}};
+  S.tasks.forEach(t=>add('tasks',t,false));S.archive.forEach(t=>add('tasks',t,true));S.members.forEach(m=>add('members',m,false));
+  Object.keys(SYNC.sent).forEach(k=>{if(!seen.has(k)&&SYNC.sent[k]!=='__del'){const [c,id]=k.split(':');ops.push([c,id,{_del:true,_at:at,_by:DEVICE}]);SYNC.sent[k]='__del'}});
+  if(!ops.length)return;saveSY();
+  for(let i=0;i<ops.length;i+=400){const b=db.batch();
+    ops.slice(i,i+400).forEach(([c,id,data])=>{const {_at,...rest}=data;const clean=JSON.parse(JSON.stringify(rest));clean._at=at;b.set(base.collection(c).doc(id),clean)});
+    b.commit().catch(e=>setSync('error',/permission/i.test(e.message)?'The database refused the change. Check the security rules in Firebase.':e.message))}}
+function renderSyncChip(){const c=$('#syncChip');if(!c)return;if(!SY){c.hidden=true;return}c.hidden=false;
+  const m={live:['ok','Synced'],connecting:['warn','Connecting…'],offline:['warn','Offline'],error:['bad','Sync problem'],off:['warn','Sync paused']}[SYNC.state]||['warn','Sync'];
+  c.className='syncchip '+m[0];c.innerHTML=`<i></i><span>${m[1]}</span>`;c.title=SYNC.err||m[1]}
+function syncStatusHtml(){if(!SY)return'';const m={live:'Connected. Changes appear on every device within seconds.',connecting:'Connecting…',offline:'Offline. Changes are saved here and sent when the connection is back.',error:'Problem: ',off:'Paused.'}[SYNC.state]||'';
+  return`<span class="dot ${SYNC.state==='live'?'ok':SYNC.state==='error'?'bad':'warn'}"></span>${esc(m)}${SYNC.state==='error'?esc(SYNC.err):''}`}
+
+/* setup / invite / join sheets */
+const RULES=`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /teams/{team}/{coll}/{id} {
+      allow read: if team.size() >= 20 && coll in ['tasks', 'members'];
+      allow write: if team.size() >= 20 && coll in ['tasks', 'members']
+                   && request.resource.data.keys().size() < 40;
+    }
+  }
+}`;
+function syncSetupSheet(){
+  openModal(`<form id="ssf"><header><h2>Set up live sync</h2><p>Free, using Google Firebase. Do this once, on the admin's computer.</p></header>
+   <div class="sb">
+    <ol class="steps">
+     <li>Go to <b>console.firebase.google.com</b> and sign in with a Google account. Click <b>Create a project</b>, name it (for example <i>dm-task-scheduler</i>) and turn off Google Analytics.</li>
+     <li>Open <b>Build › Firestore Database › Create database</b>. Choose a location near you and <b>Start in production mode</b>.</li>
+     <li>In Firestore, open the <b>Rules</b> tab, replace everything with the rules below and click <b>Publish</b>.</li>
+     <li>Open <b>Project settings</b> (gear icon) › <b>Your apps</b> › the web icon <b>&lt;/&gt;</b>. Register the app, then copy the <b>firebaseConfig</b> block.</li>
+     <li>Paste it below and click <b>Start live sync</b>.</li></ol>
+    <div class="f"><label>Security rules <button type="button" class="btn sm ghost" id="cpRules">Copy rules</button></label><div class="mailbox" style="max-height:140px">${esc(RULES)}</div></div>
+    <div class="f"><label for="fbc">firebaseConfig</label><textarea id="fbc" style="min-height:120px;font-family:var(--mono);font-size:12px" placeholder='const firebaseConfig = {&#10;  apiKey: "AIza…",&#10;  projectId: "dm-task-scheduler",&#10;  appId: "1:…:web:…"&#10;};'></textarea></div>
+    <div class="f"><label for="tnm">Team name</label><input id="tnm" value="${esc(SY?.name||'')}" placeholder="For example: Digital Media Team"></div>
+    <p class="hint">Your current tasks and team on this device become the shared team data. Free plan limits are far above what a team uses.</p>
+   </div>
+   <footer><button type="button" class="btn" data-act="closeModal">Cancel</button><button class="btn primary">Start live sync</button></footer></form>`);
+  $('#cpRules').onclick=()=>copy(RULES,'Rules copied');
+  $('#ssf').onsubmit=async e=>{e.preventDefault();const cfg=parseConfig($('#fbc').value);
+    if(!cfg){toast({title:'That config is incomplete',msg:'Paste the whole firebaseConfig block. It needs apiKey, projectId and appId.'});return}
+    SY={cfg,team:randId(24),name:$('#tnm').value.trim()||'Digital Media Team',created:new Date().toISOString(),admin:true};SYNC.sent={};saveSY();closeModal();
+    await startSync();soft();setTimeout(()=>{if(SYNC.state==='live'||SYNC.state==='connecting')inviteSheet()},1200)}}
+function inviteSheet(){if(!SY)return;
+  const link=joinLink(),code=joinCode();
+  openModal(`<header><h2>Connect a phone or computer</h2><p>${esc(SY.name||'Your team')}: everyone who joins sees and edits the same tasks.</p></header>
+   <div class="sb">
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><div id="jqr" style="background:#fff;padding:10px;border-radius:10px;line-height:0;min-width:180px;min-height:180px;display:grid;place-items:center;color:#555;font-size:12px">Loading QR…</div>
+     <div style="flex:1;min-width:200px"><ol class="steps">
+      <li><b>Android:</b> scan with the camera, open the link in Chrome, tap <b>Join</b>, then <b>Install app</b>.</li>
+      <li><b>iPhone:</b> install the app first (Safari › Share › Add to Home Screen). Then open it, go to <b>Settings › Live sync › Join a team</b> and paste the code.</li>
+      <li><b>Another PC:</b> in the Windows app, Settings › Live sync › Join a team, paste the code.</li></ol></div></div>
+    <div class="f"><label>Join code</label><div class="mailbox" style="max-height:90px" id="jcode">${esc(code)}</div></div>
+    <p class="hint">Anyone with this code can see and change your team's tasks. Share it only with your team, for example on WhatsApp or by email.</p>
+   </div>
+   <footer><button class="btn left" id="cpLink">Copy join link</button><button class="btn" id="cpCode">Copy code</button><button class="btn primary" data-act="closeModal">Done</button></footer>`);
+  $('#cpCode').onclick=()=>copy(code,'Join code copied');$('#cpLink').onclick=()=>copy(link,'Join link copied');
+  const el=$('#jqr');const go=()=>{try{el.innerHTML='';new window.QRCode(el,{text:link,width:180,height:180,correctLevel:window.QRCode.CorrectLevel.L})}catch(e){el.textContent='Use the code below'}};
+  if(window.QRCode)go();else{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';sc.onload=go;sc.onerror=()=>{el.textContent='Use the code below'};document.head.appendChild(sc)}}
+function joinSheet(prefill){
+  const iosBrowser=IOS&&!STANDALONE&&HOSTED;
+  openModal(`<form id="jf"><header><h2>Join a team</h2><p>Connect this ${IOS||ANDROID?'phone':'device'} to your team's shared tasks.</p></header>
+   <div class="sb">
+    ${iosBrowser?`<div class="banner" style="margin:0">${I.bell}<p>On iPhone, first add this app to your Home Screen (Share › Add to Home Screen), open it from there, then paste the code in Settings › Live sync › Join a team. Copy the code now.</p><button type="button" class="btn sm primary" id="cpj">Copy code</button></div>`:''}
+    <div class="f"><label for="jc">Join code or link</label><textarea id="jc" style="min-height:90px;font-family:var(--mono);font-size:12px" placeholder="DMTS1.…">${esc(prefill||'')}</textarea></div>
+    ${S.tasks.length||S.members.length?`<p class="hint" style="color:var(--warn)">The tasks and people on this device will be replaced by the team's shared data.</p>`:''}
+   </div>
+   <footer><button type="button" class="btn" data-act="closeModal">Cancel</button><button class="btn primary">Join</button></footer></form>`,'sm');
+  const cj=$('#cpj');if(cj)cj.onclick=()=>copy(prefill||'','Join code copied');
+  $('#jf').onsubmit=async e=>{e.preventDefault();const j=parseJoin($('#jc').value);
+    if(!j){toast({title:"That code doesn't work",msg:'Copy the whole join code or link from the admin’s device.'});return}
+    await stopSync();SY={cfg:j.cfg,team:j.team,name:j.name,joined:new Date().toISOString()};SYNC.sent={};
+    S.tasks=[];S.members=[];S.archive=[];setMe('');saveLocal();saveSY();SYNC.justJoined=true;closeModal();render();startSync()}}
+async function leaveSync(){confirmBox('Stop live sync on this device?','This device keeps a copy of the current tasks but stops receiving changes. Other devices are not affected.','Stop sync',async()=>{await stopSync();SY=null;SYNC.sent={};saveSY();soft();toast({title:'Live sync stopped on this device'})},false)}
+
 /* ---------- first-run setup ---------- */
 function setupSheet(){
   openModal(`<form id="wf"><div class="welcome">${logo(84)}<h2>Welcome to Digital Media Task Scheduler</h2><p>Free task scheduling for your media team. Start by adding yourself as the admin.</p></div>
    <div class="sb"><div class="fgrid"><div class="f"><label for="w_n">Your name</label><input id="w_n" required placeholder="Full name" autofocus></div>
     <div class="f"><label for="w_e">Your email</label><input id="w_e" type="email" placeholder="name@company.com"></div></div>
     <p class="hint">You can add managers, team leaders and staff next. Everything is saved only on this device.</p></div>
-   <footer><button type="button" class="btn left" data-act="restoreFirst">Restore a backup</button><button class="btn primary">Continue</button></footer></form>`);
+   <footer><button type="button" class="btn left" data-act="joinSync">Join my team</button><button type="button" class="btn" data-act="restoreFirst">Restore a backup</button><button class="btn primary">Continue</button></footer></form>`);
   $('#wf').onsubmit=e=>{e.preventDefault();const name=$('#w_n').value.trim(),email=$('#w_e').value.trim();if(!name)return;
     if(email&&!validEmail(email)){toast({title:'Check the email address',msg:`“${email}” doesn't look like an email address.`});return}
     const m={id:uid(),name,role:'Admin',email};S.members.push(m);save();setMe(m.id);closeModal();ui.view='team';render();boot();
@@ -858,12 +1019,13 @@ function googleLink(t){const w=evTimes(t);if(!w)return'';const dates=w.allDay?`$
 function outlookLink(t,work){const w=evTimes(t);if(!w)return'';const f=d=>w.allDay?isoDay(d):d.toISOString();
   return`https://outlook.${work?'office':'live'}.com/calendar/0/action/compose?rru=addevent&subject=${encodeURIComponent(t.title)}&body=${encodeURIComponent(calDetails(t).slice(0,1500))}&startdt=${encodeURIComponent(f(w.s))}&enddt=${encodeURIComponent(f(w.e))}${w.allDay?'&allday=true':''}`}
 function saveIcs(name,text){
+  if(NATIVE&&window.openIcs){window.openIcs(name,text).catch(()=>toast({title:"Couldn't open the calendar",msg:'Outlook or the Windows Calendar app needs to be installed.'}));return}
   if(IOS){try{const u=URL.createObjectURL(new Blob([text],{type:'text/calendar'}));const a=document.createElement('a');a.href=u;a.target='_blank';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(u)},60000);return}catch(e){}}
   download(name,text,'text/calendar')}
 let calCtx=null;
 function calSheet(t,next){calCtx={t,next};
   if(!evTimes(t)){openModal(`<header><h2>Add to calendar</h2><p>“${esc(t.title)}” has no scheduled start or deadline yet. Add one, then add it to your calendar.</p></header><footer><button class="btn" data-act="closeModal">Close</button><button class="btn primary" data-act="calEdit">Set a date</button></footer>`,'sm');return}
-  const ics=EMBED?'':WINDOWS?`<button class="calopt first" data-act="calIcs"><span class="ci" style="background:#0067c0">${I.cal}</span><span><b>Windows Calendar or Outlook</b><small>Adds the event to the calendar on this PC, with reminders. Open the downloaded file, then choose Save.</small></span></button>`+
+  const ics=EMBED?'':WINDOWS?`<button class="calopt first" data-act="calIcs"><span class="ci" style="background:#0067c0">${I.cal}</span><span><b>Windows Calendar or Outlook</b><small>${NATIVE?'Opens the event in Outlook or the Calendar app on this PC, with reminders. Click Save there.':'Adds the event to the calendar on this PC, with reminders. Open the downloaded file, then choose Save.'}</small></span></button>`+
     `<button class="calopt" data-act="calIcs"><span class="ci" style="background:#ff3b30">${I.cal}</span><span><b>Apple Calendar</b><small>iPhone, iPad and Mac. Send the event file to your phone and tap Add.</small></span></button>`:
     `<button class="calopt ${IOS?'first':''}" data-act="calIcs"><span class="ci" style="background:#ff3b30">${I.cal}</span><span><b>Apple Calendar or Outlook app</b><small>iPhone, iPad, Mac and Outlook on Windows. Includes reminders. Open the file and tap Add.</small></span></button>`;
   openModal(`<header><h2>Add to calendar</h2><p>${esc(t.title)}<br>${esc(whenText(t))}</p></header>
@@ -911,20 +1073,20 @@ function toast({title,msg='',app='Digital Media Task Scheduler',icon=I.bell,acti
   const el=document.createElement('div');el.className='toast';
   el.innerHTML=`<div class="ti">${icon}</div><div class="tb"><small>${esc(app)} · now</small><b>${esc(title)}</b>${msg?`<p>${esc(msg)}</p>`:''}${actions.length?`<div class="ta">${actions.map((a,i)=>`<button class="btn sm ${i===0?'primary':''}" data-i="${i}">${esc(a.label)}</button>`).join('')}</div>`:''}</div><button class="ibtn" aria-label="Dismiss" style="align-self:flex-start">×</button>`;
   $('#toasts').prepend(el);let tm;const kill=()=>{el.remove()};const arm=()=>{tm=setTimeout(kill,ms)};
-  el.onmouseenter=()=>clearTimeout(tm);el.onmouseleave=arm;arm();
+  el.onmouseenter=()=>clearTimeout(tm);el.onmouseleave=()=>{clearTimeout(tm);arm()};arm();setTimeout(kill,ms*3);
   el.querySelector('.ibtn').onclick=kill;
   el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{actions[+b.dataset.i].fn();kill()});
   while($('#toasts').children.length>4)$('#toasts').lastChild.remove()}
 /* ---------- reminder popup (alarm) ---------- */
 let alarmQ=[],alarmOpen=false,repeatT=null,flashT=null,swReg=null;const baseTitle=document.title;
 const aTask=a=>a.task||task(a.id);
-function sysNotify(t,msg){if(!S.settings.system||!('Notification' in window)||Notification.permission!=='granted')return;
+function sysNotify(t,msg){if(NATIVE){if(S.settings.winToast!==false&&window.nativeNotify)window.nativeNotify(String(t.title).slice(0,63),String(msg).slice(0,250)).catch(()=>{});return}if(!S.settings.system||!('Notification' in window)||Notification.permission!=='granted')return;
   const opt={body:msg,tag:t.id,icon:'icon-192.png',badge:'icon-192.png',requireInteraction:true,renotify:true};
   if(swReg&&swReg.showNotification){swReg.showNotification(t.title,opt).catch(()=>{});return}
   try{const n=new Notification(t.title,opt);n.onclick=()=>{window.focus();const x=task(t.id);if(x)taskModal(x)}}catch(e){}}
 function remind(t,msg,o={}){
   const ex=alarmQ.find(a=>a.id===t.id);if(ex){ex.msg=msg;ex.missed=!!o.missed}else alarmQ.push({id:t.id,msg,missed:!!o.missed,task:o.keep?t:null});
-  sysNotify(t,msg);
+  sysNotify(t,msg);if(NATIVE&&window.nativeAttention)window.nativeAttention().catch(()=>{});
   if(!S.settings.alarm){chime();alarmQ=[];
     toast({title:t.title,msg:`${msg}${member(t.assignee)?' · '+member(t.assignee).name:''}`,ms:15000,actions:[{label:'Open',fn:()=>taskModal(t)},{label:'Email',fn:()=>emailTask(t,'Reminder')},{label:'Mark done',fn:()=>setStatus(t,'done')}]});return}
   if(!$('#modal').hidden&&!alarmOpen){chime();toast({title:t.title,msg:msg+'. The reminder opens when you close this window.',ms:8000});return}
@@ -981,7 +1143,8 @@ function delTask(t){confirmBox('Delete this task?',`“${t.title}” will be del
 async function copy(text,ok='Copied'){try{await navigator.clipboard.writeText(text);toast({title:ok,icon:I.check})}catch(e){
   openModal(`<header><h2>Copy this text</h2><p>Select all and copy with Ctrl+C.</p></header><div class="sb"><textarea class="inp" id="cpta" style="min-height:240px;font-family:var(--mono);font-size:12px">${esc(text)}</textarea></div><footer><button class="btn primary" data-act="closeModal">Done</button></footer>`);
   setTimeout(()=>{const a=$('#cpta');a&&a.select()},50)}}
-function download(name,text,type){try{const b=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){copy(text)}}
+function download(name,text,type){if(NATIVE&&window.saveFile){window.saveFile(name,text).then(p=>toast({title:'Saved to Downloads',msg:p,icon:I.check})).catch(()=>copy(text));return}
+try{const b=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}catch(e){copy(text)}}
 
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;const act=el.dataset.act;
@@ -998,11 +1161,15 @@ document.addEventListener('click',e=>{
     case'email':if(t)emailTask(t,'Task reminder');break;
     case'closeModal':closeModal();break;
     case'cal':if(t)calSheet(t);break;
+    case'setupSync':syncSetupSheet();break;
+    case'joinSync':joinSheet('');break;
+    case'invite':inviteSheet();break;
+    case'leaveSync':leaveSync();break;
     case'who':if(!S.members.length)setupSheet();else whoSheet(false);break;
     case'setup':setupSheet();break;
     case'restoreFirst':closeModal();ui.view='settings';render();boot();setTimeout(()=>{const b=$('[data-act=pasteBackup]');b&&b.scrollIntoView({block:'center'})},100);break;
     case'pickMe':{setMe(el.dataset.m);const m=meM();closeModal();soft();toast({title:m?`Hi ${firstName(m)}`:'Shared device',msg:m?`This device now shows ${m.role==='Admin'||m.role==='Manager'?'the team’s tasks and reminds you about '+(scope()==='all'?'everyone’s':'your')+' tasks':'your tasks and reminders'}.`:'Showing and reminding about everyone’s tasks.',icon:I.check});break}
-    case'calIcs':if(calCtx){saveIcs(`${calCtx.t.title.replace(/[^\w\- ]+/g,'').trim().slice(0,50)||'task'}.ics`,icsFile([calCtx.t]));toast({title:'Calendar event ready',msg:IOS?'Tap Add to Calendar.':WINDOWS?'Open the file from the Downloads list (top right), then choose Save in Calendar or Outlook.':'Open the downloaded file to add it.',icon:I.cal,ms:10000})}break;
+    case'calIcs':if(calCtx){saveIcs(`${calCtx.t.title.replace(/[^\w\- ]+/g,'').trim().slice(0,50)||'task'}.ics`,icsFile([calCtx.t]));toast({title:'Calendar event ready',msg:IOS?'Tap Add to Calendar.':NATIVE?'Your calendar app opens with the event. Click Save.':WINDOWS?'Open the file from the Downloads list (top right), then choose Save in Calendar or Outlook.':'Open the downloaded file to add it.',icon:I.cal,ms:10000})}break;
     case'calNext':if(calCtx&&calCtx.next){const f=calCtx.next;calCtx.next=null;f()}break;
     case'calEdit':if(calCtx&&task(calCtx.t.id))taskModal(calCtx.t);break;
     case'calAll':calAll();break;
@@ -1026,12 +1193,14 @@ document.addEventListener('click',e=>{
     case'saveBackup':download(`task-scheduler-backup-${dkey(new Date())}.json`,JSON.stringify(S,null,1),'application/json');break;
     case'importBackup':$('#importFile').click();break;
     case'pasteBackup':openModal(`<header><h2>Paste backup</h2><p>Paste the text you copied with Copy backup on your other device.</p></header><div class="sb"><textarea class="inp" id="pb" style="min-height:200px;font-family:var(--mono);font-size:12px" autofocus placeholder='{"v":1, ...}'></textarea></div><footer><button class="btn" data-act="closeModal">Cancel</button><button class="btn primary" id="pbGo">Restore</button></footer>`,'sm');$('#pbGo').onclick=()=>{const v=$('#pb').value;if(v.trim())restore(v)};break;
-    case'resetAll':confirmBox('Delete everything?','Every task, person and report history will be deleted from this computer. Make a backup first if you might need it.','Delete everything',()=>{S={v:1,sample:false,members:[],tasks:[],archive:[],settings:S.settings,lastPopup:dkey(new Date())};setMe('');save();render();setTimeout(setupSheet,300)});break;
+    case'resetAll':confirmBox('Delete everything?',SY?'Live sync is stopped on this device first, so the team’s shared tasks are not touched. Then every task, person and report history on this device is deleted.':'Every task, person and report history will be deleted from this computer. Make a backup first if you might need it.','Delete everything',async()=>{if(SY){await stopSync();SY=null;SYNC.sent={};saveSY()}S={v:1,sample:false,members:[],tasks:[],archive:[],settings:S.settings,lastPopup:dkey(new Date())};setMe('');save();render();setTimeout(setupSheet,300)});break;
     case'contact':mailSheet(['sikunju@outlook.com'],'Digital Media Task Scheduler','Hi Suhail,\n\n');break;
     case'pickEmail':$('#emailFile').click();break;
     case'pasteEmail':pasteModal();break;
   }
 });
+if(NATIVE)document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href]');if(!a)return;const h=a.getAttribute('href')||'';
+  if(/^(https?:|mailto:)/i.test(h)&&window.openExternal){e.preventDefault();e.stopPropagation();window.openExternal(a.href);if(a.id==='openMail')setTimeout(closeModal,300)}},true);
 document.addEventListener('change',e=>{
   const el=e.target;
   if(el.matches('select[data-act=status]')){const t=task(el.closest('[data-id]').dataset.id);setStatus(t,el.value)}
@@ -1042,7 +1211,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#modal').hidden
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='n'&&$('#modal').hidden){e.preventDefault();taskModal(null,{due:at(0,17)})}});
 $('#q').addEventListener('input',e=>{ui.q=e.target.value;if(ui.view!=='tasks'){ui.view='tasks';render();$('#q').focus()}else soft()});
 function restore(text){let s;try{s=JSON.parse(text.trim());if(!Array.isArray(s.tasks)||!Array.isArray(s.members))throw 0}catch(err){toast({title:"That isn't a backup",msg:'Use the text from Copy backup or a .json file saved from this app.'});return}
-  confirmBox('Restore this backup?',`${s.tasks.length} tasks and ${s.members.length} people will replace what's here now.`,'Restore',()=>{S=Object.assign({archive:[],settings:{}},s);S.settings=Object.assign({sound:true,system:false,popup:true,alarm:true,repeat:true},S.settings);save();if(ME&&!member(ME))setMe('');render();toast({title:'Backup restored',icon:I.check});if(!meM()&&S.members.length>1)setTimeout(()=>whoSheet(false),300)},false)}
+  confirmBox('Restore this backup?',`${s.tasks.length} tasks and ${s.members.length} people will replace what's here now${SY?', on every synced device':''}.`,'Restore',()=>{S=Object.assign({archive:[],settings:{}},s);S.settings=Object.assign({sound:true,system:false,popup:true,alarm:true,repeat:true},S.settings);save();if(ME&&!member(ME))setMe('');render();toast({title:'Backup restored',icon:I.check});if(!meM()&&S.members.length>1)setTimeout(()=>whoSheet(false),300)},false)}
 $('#importFile').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f)restore(await f.text())});
 $('#emailFile').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(f)fromEmailFile(f)});
 
@@ -1128,9 +1297,12 @@ if('serviceWorker' in navigator&&HOSTED){navigator.serviceWorker.register('sw.js
   navigator.serviceWorker.addEventListener('message',e=>{const x=e.data&&task(e.data.open);if(x)taskModal(x)})}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)tick()});
 window.addEventListener('focus',()=>tick());
-let booted=false;function boot(){if(booted)return;booted=true;tick();setInterval(tick,15000);setTimeout(dailyPopup,600)}
+let booted=false;function boot(){if(booted)return;booted=true;if(SY)startSync();tick();setInterval(tick,15000);setTimeout(dailyPopup,600)}
 if(ME&&!member(ME))setMe('');
-renderLogo();render();if(!S.members.length){boot();setTimeout(setupSheet,350)}else if(needWho())setTimeout(()=>whoSheet(true),400);else boot();
+renderLogo();render();if(!S.members.length){boot();if(!/^#join=/.test(location.hash)&&!SY)setTimeout(setupSheet,350)}else if(needWho())setTimeout(()=>whoSheet(true),400);else boot();
+try{if(/^#join=/.test(location.hash)){const c=location.hash.slice(6);history.replaceState(null,'',location.pathname+location.search);setTimeout(()=>{if(!$('#modal').hidden)closeModal();joinSheet(c)},700)}}catch(e){}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&SY&&!SYNC.db)startSync()});
+window.addEventListener('online',()=>{if(SY&&!SYNC.db)startSync()});
 try{const qt=new URLSearchParams(location.search).get('task');if(qt&&task(qt))setTimeout(()=>taskModal(task(qt)),900)}catch(e){}
 })();
 </script>
